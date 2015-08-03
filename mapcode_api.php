@@ -256,16 +256,16 @@ function isInRange($x, $minx, $maxx)
 
 function fitsInside($p, $mm)
 {
-    return ($mm->miny <= $p->y && $p->y < $mm->maxy && isInRange($p->x, $mm->minx, $mm->maxx));
+    return ($mm->miny <= $p->lat && $p->lat < $mm->maxy && isInRange($p->lon, $mm->minx, $mm->maxx));
 }
 
 function fitsInsideWithRoom($p, $mm)
 {
-    if ((($mm->miny - 45) > $p->y) || ($p->y >= ($mm->maxy + 45))) {
+    if ((($mm->miny - 45) > $p->lat) || ($p->lat >= ($mm->maxy + 45))) {
         return false;
     }
     $xroom = xDivider4($mm->miny, $mm->maxy) >> 2;
-    return isInRange($p->x, $mm->minx - $xroom, $mm->maxx + $xroom);
+    return isInRange($p->lon, $mm->minx - $xroom, $mm->maxx + $xroom);
 }
 
 function startsdigit($n)
@@ -334,20 +334,17 @@ function hasSubdivision($territory)
 
 class Coord
 {
-    public $x, $y;
+    public $lat, $lon;
 
     public function __construct($lat, $lon)
     {
-        $this->y = $lat;
-        $this->x = $lon;
+        $this->lat = $lat;
+        $this->lon = $lon;
     }
 
     public function __toString()
     {
-        if ($this->x > 360 || $this->y > 360 || $this->x < -360 || $this->y < -360) {
-            return sprintf('[%0.9f,%0.9f]', $this->y / 1000000.0, $this->x / 1000000.0);
-        }
-        return sprintf('[%0.9f,%0.9f]', $this->y, $this->x);
+        return sprintf('[%0.9f,%0.9f]', $this->lat, $this->lon);
     }
 }
 
@@ -439,7 +436,7 @@ class EncodeRec
 
     public function __toString()
     {
-        return sprintf('[%0.9f,%0.9f]', ($this->coord32->y + $this->fraclat) / 1000000.0, ($this->coord32->x + $this->fraclon) / 1000000.0);
+        return sprintf('[%0.9f,%0.9f]', ($this->coord32->lat + $this->fraclat) / 1000000.0, ($this->coord32->lon + $this->fraclon) / 1000000.0);
     }
 }
 
@@ -554,7 +551,7 @@ function decodeSixWide($v, $width, $height)
     return new Coord($height - 1 - floor($w / $D), ($col * 6) + ($w % $D));
 }
 
-function decodeExtension($extensionchars, $Coord, $dividerx4, $dividery, $ydirection, $orginput)
+function decodeExtension($extensionchars, $Coord, $dividerx4, $dividery, $ydirection)
 {
     $dividerx = $dividerx4 / 4.0;
     $processor = 1.0;
@@ -593,12 +590,12 @@ function decodeExtension($extensionchars, $Coord, $dividerx4, $dividery, $ydirec
     $extray += (0.5 / $processor);
     $extrax *= $dividerx;
     $extray *= $dividery;
-    $Coord->x += $extrax;
-    $Coord->y += $extray * $ydirection;
+    $Coord->lon += $extrax;
+    $Coord->lat += $extray * $ydirection;
     return $Coord;
 }
 
-function decodeGrid($input, $extensionchars, $headerletter, $territoryNumber, $m)
+function decodeGrid($input, $extensionchars, $headerletter, $m)
 {
     $orgresult = $input;
     $prefixlength = strpos($input, '.');
@@ -632,8 +629,8 @@ function decodeGrid($input, $extensionchars, $headerletter, $territoryNumber, $m
 
     if ($divx != $divy && $prefixlength > 2) {
         $d = decodeSixWide($v, $divx, $divy);
-        $relx = $d->x;
-        $rely = $d->y;
+        $relx = $d->lon;
+        $rely = $d->lat;
     } else {
         $relx = floor($v / $divy);
         $rely = $divy - 1 - ($v % $divy);
@@ -662,8 +659,8 @@ function decodeGrid($input, $extensionchars, $headerletter, $territoryNumber, $m
         if ($d == 0) {
             return 0;
         }
-        $difx = $d->x;
-        $dify = $d->y;
+        $difx = $d->lon;
+        $dify = $d->lat;
     } else {
         if ($postfixlength == 4) {
             $rest = $rest[0] . $rest[2] . $rest[1] . $rest[3];
@@ -682,7 +679,7 @@ function decodeGrid($input, $extensionchars, $headerletter, $territoryNumber, $m
     $corner = new Coord($rely + ($dify * $dividery), $relx + ($difx * $dividerx));
 
 
-    return decodeExtension($extensionchars, $corner, ($dividerx) << 2, $dividery, 1, $headerletter + $input);
+    return decodeExtension($extensionchars, $corner, ($dividerx) << 2, $dividery, 1);
 }
 
 function firstNamelessRecord($index, $firstcode)
@@ -805,8 +802,8 @@ function decodeNameless($input, $extensionchars, $m, $firstindex)
 
     if (isSpecialShape($m)) {
         $d = decodeSixWide($v, $XSIDE, $SIDE);
-        $dx = $d->x;
-        $dy = $SIDE - 1 - $d->y;
+        $dx = $d->lon;
+        $dy = $SIDE - 1 - $d->lat;
     } else {
         $dy = ($v % $SIDE);
         $dx = floor($v / $SIDE);
@@ -820,9 +817,9 @@ function decodeNameless($input, $extensionchars, $m, $firstindex)
     $dividery = 90;
 
     $corner = new Coord($mm->maxy - ($dy * $dividery), $mm->minx + floor(($dx * $dividerx4) / 4));
-    $ret = decodeExtension($extensionchars, $corner, $dividerx4, $dividery, -1, $input);
+    $ret = decodeExtension($extensionchars, $corner, $dividerx4, $dividery, -1);
     if ($ret != 0) {
-        $ret->x += (($dx * $dividerx4) % 4) / 4.0;
+        $ret->lon += (($dx * $dividerx4) % 4) / 4.0;
     }
     return $ret;
 }
@@ -865,15 +862,15 @@ function decodeAutoHeader($input, $extensionchars, $m)
             $value -= $STORAGE_START;
             $value = floor($value / (961 * 31));
 
-            $vx = $triple->x + 168 * (floor($value / floor($H / 176)));
-            $vy = $triple->y + 176 * ($value % floor($H / 176));
+            $vx = $triple->lon + 168 * (floor($value / floor($H / 176)));
+            $vy = $triple->lat + 176 * ($value % floor($H / 176));
 
             $corner = new Coord($mm->maxy - $vy * $dividery, $mm->minx + $vx * $dividerx);
 
-            if ($corner->x < $mm->minx || $corner->x >= $mm->maxx || $corner->y < $mm->miny || $corner->y > $mm->maxy) {
+            if ($corner->lon < $mm->minx || $corner->lon >= $mm->maxx || $corner->lat < $mm->miny || $corner->lat > $mm->maxy) {
                 return 0;
             }
-            return decodeExtension($extensionchars, $corner, $dividerx << 2, $dividery, -1, $input);
+            return decodeExtension($extensionchars, $corner, $dividerx << 2, $dividery, -1);
         }
         $STORAGE_START += $product;
     }
@@ -1010,7 +1007,7 @@ $lannam = array(
     "Hebrew",
     "Hindi",
     "Malai",
-    "Georgisch",
+    "Georgian",
     "Katakana",
     "Thai",
     "Lao",
@@ -1205,7 +1202,7 @@ function master_decode($mapcode, $territoryNumber = -1)
 
         if (($incodex == $codexm || ($incodex == 22 && $codexm == 21)) && recType($m) == 0 && isNameless($m) == 0) {
 
-            $result = decodeGrid($mapcode, $extensionchars, '', $territoryNumber, $m);
+            $result = decodeGrid($mapcode, $extensionchars, '', $m);
             if ($result != 0 && isRestricted($m)) {
                 $fitssomewhere = 0;
                 for ($j = $upto - 1; $j >= $from; $j--) {
@@ -1223,7 +1220,7 @@ function master_decode($mapcode, $territoryNumber = -1)
             break;
         } else {
             if ($codexm + 10 == $incodex && recType($m) == 1 && headerLetter($m) == $mapcode[0]) {
-                $result = decodeGrid(substr($mapcode, 1), $extensionchars, substr($mapcode, 0, 1), $territoryNumber, $m);
+                $result = decodeGrid(substr($mapcode, 1), $extensionchars, substr($mapcode, 0, 1), $m);
                 break;
             } else {
                 if (isNameless($m) && (($codexm == 21 && $incodex == 22) || ($codexm == 22 && $incodex == 32) || ($codexm == 13 && $incodex == 23))) {
@@ -1233,6 +1230,8 @@ function master_decode($mapcode, $territoryNumber = -1)
                     if ($postfixlength == 3 && recType($m) > 1 && CodexLen($m) == $prefixlength + 2) {
                         $result = decodeAutoHeader($mapcode, $extensionchars, $m);
                         break;
+                    } else {
+                        $result = 0;
                     }
                 }
             }
@@ -1240,11 +1239,11 @@ function master_decode($mapcode, $territoryNumber = -1)
     }
 
     if ($result) {
-        if ($result->x > 180000000) {
-            $result->x -= 360000000;
+        if ($result->lon > 180000000) {
+            $result->lon -= 360000000;
         } else {
-            if ($result->x < -180000000) {
-                $result->x += 360000000;
+            if ($result->lon < -180000000) {
+                $result->lon += 360000000;
             }
         }
 
@@ -1254,10 +1253,10 @@ function master_decode($mapcode, $territoryNumber = -1)
             }
         }
 
-        $result->x /= 1000000.0;
-        $result->y /= 1000000.0;
-        if ($result->y > 90) {
-            $result->y = 90;
+        $result->lon /= 1000000.0;
+        $result->lat /= 1000000.0;
+        if ($result->lat > 90) {
+            $result->lat = 90;
         }
     }
     return $result;
@@ -1364,7 +1363,7 @@ function encodeExtension($result, $enc, $extrax4, $extray, $dividerx4, $dividery
 }
 
 
-function encodeGrid($enc, $m, $mm, $headerletter, $territoryNumber, $extraDigits)
+function encodeGrid($enc, $m, $mm, $headerletter, $extraDigits)
 {
     $orgcodex = Codex($m);
     $codexm = $orgcodex;
@@ -1387,10 +1386,10 @@ function encodeGrid($enc, $m, $mm, $headerletter, $territoryNumber, $extraDigits
         $divx = floor($GLOBALS['nc'][$prefixlength] / $divy);
     }
     $ygridsize = floor(($mm->maxy - $mm->miny + $divy - 1) / $divy);
-    $rely = $enc->coord32->y - $mm->miny;
+    $rely = $enc->coord32->lat - $mm->miny;
     $rely = floor($rely / $ygridsize);
     $xgridsize = floor(($mm->maxx - $mm->minx + $divx - 1) / $divx);
-    $x = $enc->coord32->x;
+    $x = $enc->coord32->lon;
     $relx = $x - $mm->minx;
     if ($relx < 0) {
         $x += 360000000;
@@ -1429,7 +1428,7 @@ function encodeGrid($enc, $m, $mm, $headerletter, $territoryNumber, $extraDigits
     $result .= '.';
 
     $difx = $x - $relx;
-    $dify = $enc->coord32->y - $rely;
+    $dify = $enc->coord32->lat - $rely;
     $extrax = $difx % $dividerx;
     $extray = $dify % $dividery;
     $difx = floor($difx / $dividerx);
@@ -1506,12 +1505,12 @@ function encodeNameless($enc, $m, $firstcode, $extraDigits)
 
     $dividerx4 = xDivider4($mm->miny, $mm->maxy);
     $xFracture = floor(4 * $enc->fraclon);
-    $dx = floor((4 * ($enc->coord32->x - $mm->minx) + $xFracture) / $dividerx4);
-    $extrax4 = ($enc->coord32->x - $mm->minx) * 4 - $dx * $dividerx4;
+    $dx = floor((4 * ($enc->coord32->lon - $mm->minx) + $xFracture) / $dividerx4);
+    $extrax4 = ($enc->coord32->lon - $mm->minx) * 4 - $dx * $dividerx4;
 
     $dividery = 90;
-    $dy = floor(($mm->maxy - $enc->coord32->y) / $dividery);
-    $extray = ($mm->maxy - $enc->coord32->y) % $dividery;
+    $dy = floor(($mm->maxy - $enc->coord32->lat) / $dividery);
+    $extray = ($mm->maxy - $enc->coord32->lat) % $dividery;
 
     if ($extray == 0 && $enc->fraclat > 0) {
         $dy--;
@@ -1546,7 +1545,7 @@ function encodeNameless($enc, $m, $firstcode, $extraDigits)
     return encodeExtension($result, $enc, $extrax4, $extray, $dividerx4, $dividery, $extraDigits, -1);
 }
 
-function encodeAutoHeader($enc, $m, $territoryNumber, $extraDigits)
+function encodeAutoHeader($enc, $m, $extraDigits)
 {
     $STORAGE_START = 0;
 
@@ -1576,12 +1575,12 @@ function encodeAutoHeader($enc, $m, $territoryNumber, $extraDigits)
 
         if ($i == $m && fitsInside($enc->coord32, $mm)) {
             $dividerx = floor(($mm->maxx - $mm->minx + $W - 1) / $W);
-            $vx = floor(($enc->coord32->x - $mm->minx) / $dividerx);
-            $extrax = (($enc->coord32->x - $mm->minx) % $dividerx);
+            $vx = floor(($enc->coord32->lon - $mm->minx) / $dividerx);
+            $extrax = (($enc->coord32->lon - $mm->minx) % $dividerx);
 
             $dividery = floor(($mm->maxy - $mm->miny + $H - 1) / $H);
-            $vy = floor(($mm->maxy - $enc->coord32->y) / $dividery);
-            $extray = (($mm->maxy - $enc->coord32->y) % $dividery);
+            $vy = floor(($mm->maxy - $enc->coord32->lat) / $dividery);
+            $extray = (($mm->maxy - $enc->coord32->lat) % $dividery);
 
             $spx = $vx % 168;
             $spy = $vy % 176;
@@ -1646,7 +1645,7 @@ function mapcoderEngine($enc, $tn, $getshortest, $isrecursive, $state_override, 
                         $r = encodeNameless($enc, $i, $from, $extraDigits);
                     } else {
                         if (recType($i) > 1) {
-                            $r = encodeAutoHeader($enc, $i, $territoryNumber, $extraDigits);
+                            $r = encodeAutoHeader($enc, $i, $extraDigits);
                         } else {
                             if (isRestricted($i) && $i == $upto && getParentOf($territoryNumber) >= 0) {
                                 $results = array_merge($results, mapcoderEngine($enc, getParentOf($territoryNumber), $getshortest, 1/*recursive*/, $territoryNumber, $extraDigits));
@@ -1655,7 +1654,7 @@ function mapcoderEngine($enc, $tn, $getshortest, $isrecursive, $state_override, 
                                 if (isRestricted($i) && count($results) == $original_length) {
                                     $r = '';
                                 } else {
-                                    $r = encodeGrid($enc, $i, $mm, headerLetter($i), $territoryNumber, $extraDigits);
+                                    $r = encodeGrid($enc, $i, $mm, headerLetter($i), $extraDigits);
                                 }
                             }
                         }

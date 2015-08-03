@@ -67,7 +67,7 @@
                 }
 
             } else {
-                echo '<BR>decodes to coordinate<BR>' . number_format($d->y, 9) . ',' . number_format($d->x, 8) . '<BR>';
+                echo '<BR>decodes to coordinate<BR>' . number_format($d->lat, 9) . ',' . number_format($d->lon, 8) . '<BR>';
             }
             echo '<hr>';
         }
