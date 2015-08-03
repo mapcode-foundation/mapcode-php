@@ -42,9 +42,9 @@ limitations under the License.
 
 # Version History
 
-* 2.0.0 (2015-08-01)
+* 2.0.0
 
     Initial open source release. (The release starts at 2.0.0 because the
-    mapcode algorithms match the 2.0.x releases in Java, C/C++, and other 
+    mapcode algorithms match the 2.0.x releases in Java, C/C++, and other
     languages.)
 
