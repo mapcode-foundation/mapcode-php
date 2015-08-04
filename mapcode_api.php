@@ -143,15 +143,16 @@ function getParentOf($territory)
 
 function iso2ccode($territory)
 {
+
     $isocode = strtoupper(trim($territory));
     if (is_numeric($isocode)) {
         return intval($isocode);
     }
     $sep = strrpos($isocode, '-');
-    if ($sep == false) {
+    if ($sep === false) {
         $sep = strrpos($isocode, ' ');
     }
-    if ($sep != false) {
+    if ($sep !== false) {
         $prefix = trim(substr($isocode, 0, $sep));
         $isocode = substr($isocode, $sep + 1);
         if (strlen($isocode) != 2 && strlen($isocode) != 3) {
@@ -163,7 +164,9 @@ function iso2ccode($territory)
 
         if (strlen($isocode) == 2) {
             $isocode = $GLOBALS['disambiguate'] . $isocode;
-        } else {
+        }
+
+        {
             if (strlen($isocode) == 3) {
                 $isoa = alias2iso($isocode);
                 if ($isoa != '') {
@@ -188,6 +191,11 @@ function iso2ccode($territory)
         if ($testiso == $GLOBALS['entity_iso'][$i]) {
             return $i;
         }
+    }
+
+    $a = alias2iso($testiso);
+    if (strlen($a)) {
+        return iso2ccode($a);
     }
 
     if (strlen($isocode) == 2) {
