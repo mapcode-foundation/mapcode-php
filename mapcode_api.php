@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-define('mapcode_phpversion', '2.0.0');
+define('mapcode_phpversion', '2.0.2');
 
 $xdivider19 = array(
     360, 360, 360, 360, 360, 360, 361, 361, 361, 361,
@@ -66,7 +66,7 @@ function parentname2($disam)
 
 function parentletter($isocode)
 {
-    $p = -1;
+    $p = false;
     $srch = $isocode . ",";
     $len = strlen($srch);
     if ($len == 3) {
@@ -76,7 +76,7 @@ function parentletter($isocode)
             $p = stripos(parents3, $srch);
         }
     }
-    if ($p < 0) {
+    if ($p === false) {
         return -2;
     }
     return 1 + ($p / $len);
@@ -164,8 +164,8 @@ function iso2ccode($territory)
 
         if (strlen($isocode) == 2) {
             $isocode = $GLOBALS['disambiguate'] . $isocode;
-        }
-
+        } 
+        
         {
             if (strlen($isocode) == 3) {
                 $isoa = alias2iso($isocode);
@@ -195,7 +195,7 @@ function iso2ccode($territory)
 
     $a = alias2iso($testiso);
     if (strlen($a)) {
-        return iso2ccode($a);
+      return iso2ccode($a);
     }
 
     if (strlen($isocode) == 2) {
@@ -219,8 +219,7 @@ function getTerritoryNumber($territory, $contextTerritoryNumber = -1)
     if ($contextTerritoryNumber >= 0) {
         set_disambiguate($GLOBALS['entity_iso'][$contextTerritoryNumber]);
     }
-    $nr = iso2ccode($territory);
-    return $nr;
+    return iso2ccode($territory);
 }
 
 /// PUBLIC - return name of $territory (optional keepindex=1 for bracketed aliases)
@@ -285,7 +284,7 @@ function getTerritoryAlphaCode($territory, $international = 1)
 {
     $territoryNumber = getTerritoryNumber($territory);
     if ($territoryNumber < 0 || $territoryNumber > ccode_earth) {
-        return -1;
+      return -1;
     }
     $n = $GLOBALS['entity_iso'][$territoryNumber];
     if (startsdigit($n)) {
@@ -571,7 +570,7 @@ function decodeExtension($extensionchars, $Coord, $dividerx4, $dividery, $ydirec
     while ($idx < $len) {
         $halfcolumn = 0;
         $c = decodeChar($extensionchars[$idx++]);
-        if ($c < 0 || $c > 30) {
+        if ($c < 0 || $c == 30) {
             return 0;
         }
         $row1 = (int)($c / 5);
@@ -945,17 +944,18 @@ function aeu_unpack($str)
         return '';
     }
 
-    for ($v = 0; $v <= $lastpos; $v++) {
+	$nrletters = 0;
+	for ($v = 0; $v <= $lastpos; $v++) {
         if ($v != $dotpos) {
             if (decodeChar($str[$v]) < 0) {
                 return '';
-            } else {
-                if ($voweled && decodeChar($str[$v]) > 9) {
-                    return '';
-                }
+            } else if (decodeChar($str[$v]) > 9) {
+                $nrletters++;
             }
         }
     }
+    if (!$voweled && !$nrletters) return '';
+    if ($voweled && $nrletters) return '';
 
     return $str;
 }
@@ -993,7 +993,7 @@ function aeu_pack($r, $short = 0)
     return $r . $rest;
 }
 
-define('MAXLANS', 14);
+define('MAPCODE_ALPHABETS_TOTAL', 14);
 
 $lannam = array(
     "Roman",
@@ -1085,7 +1085,7 @@ function to_ascii($str)
             $result .= chr($c);
         } else {
             $found = 0;
-            for ($lan = 0; $lan < MAXLANS; $lan++) {
+            for ($lan = 0; $lan < MAPCODE_ALPHABETS_TOTAL; $lan++) {
                 for ($j = 0; $j < 36; $j++) {
                     if ($c == $GLOBALS['asc2lan'][$lan][$j]) {
                         $result .= $letters[$j];
@@ -1102,8 +1102,9 @@ function to_ascii($str)
             }
         }
     }
-    if ($result[0] == 'A') {
-        $result = aeu_pack(aeu_unpack($result));
+    $p = strrpos($result,' '); if ($p===false) $p=0; else $p++;
+    if ($result[$p] == 'A') {
+        $result = substr($result,0,$p) . aeu_pack(aeu_unpack(substr($result,$p)));
     }
     return $result;
 }
@@ -1192,7 +1193,7 @@ function master_decode($mapcode, $territoryNumber = -1)
     $postfixlength = $mclen - 1 - $prefixlength;
     $incodex = $prefixlength * 10 + $postfixlength;
 
-    $result = null;
+    $result = 0;
     for ($m = $from; $m <= $upto; $m++) {
         $codexm = Codex($m);
 
@@ -1210,7 +1211,7 @@ function master_decode($mapcode, $territoryNumber = -1)
                     }
                 }
                 if ($fitssomewhere == 0) {
-                    $result = null;
+                    $result = 0;
                 }
             }
             break;
@@ -1227,7 +1228,7 @@ function master_decode($mapcode, $territoryNumber = -1)
                         $result = decodeAutoHeader($mapcode, $extensionchars, $m);
                         break;
                     } else {
-                        $result = null;
+                        $result = 0;
                     }
                 }
             }
@@ -1255,7 +1256,7 @@ function master_decode($mapcode, $territoryNumber = -1)
             $result->lat = 90;
         }
     }
-    return $result;
+	return $result;
 }
 
 function decode($mapcodeString, $territory = -1)
@@ -1265,7 +1266,7 @@ function decode($mapcodeString, $territory = -1)
     if ($contextTerritoryNumber < 0) {
         $contextTerritoryNumber = ccode_earth;
     }
-
+    
     $p = strpos($mapcodeString, ' ');
     if ($p !== false) {
         $territory = substr($mapcodeString, 0, $p);
@@ -1603,16 +1604,46 @@ function mapcoderEngine($enc, $tn, $getshortest, $isrecursive, $state_override, 
 {
     $dsr = $GLOBALS['debugStopRecord'];
     $results = array();
+    $use_redivar=0;
 
-    $fromTerritory = 0;
-    $uptoTerritory = ccode_earth;
-    if (is_numeric($tn) && $tn >= 0 && $tn <= $uptoTerritory) {
-        $fromTerritory = $tn;
-        $uptoTerritory = $tn;
+    $fromRun = 0;
+    $uptoRun = ccode_earth;
+    if (is_numeric($tn) && $tn >= 0 && $tn <= $uptoRun) {
+        $fromRun = $tn;
+        $uptoRun = $tn;
+    }
+    else if ($GLOBALS[redivar])
+    {
+      $use_redivar=1;
+      $HOR = 1;
+      $i = 0; // pointer into redivar
+      for (;;) {
+          $v2 = $GLOBALS[redivar][$i++];
+          $HOR = 1 - $HOR;
+          if ($v2 >= 0 && $v2 < 1024) { // leaf?
+              $fromRun = $i;
+              $uptoRun = $i + $v2;
+              break;
+          }
+          else {
+              $coord = ($HOR ? $enc->coord32->lon : $enc->coord32->lat);
+              if ($coord > $v2) {
+                  $i = $GLOBALS[redivar][$i];
+              }
+              else {
+                  $i++;
+              }
+          }
+      }
     }
 
     $debugStopFailed = 1;
-    for ($territoryNumber = $fromTerritory; $territoryNumber <= $uptoTerritory; $territoryNumber++) {
+    for ($run = $fromRun; $run <= $uptoRun; $run++) {        
+        if ($use_redivar)
+          $territoryNumber = ($run == $uptoRun ? ccode_earth : $GLOBALS[redivar][$run]);
+        else 
+          $territoryNumber = $run;
+        
         $original_length = count($results);
         $from = dataFirstRecord($territoryNumber);
         $upto = dataLastRecord($territoryNumber);
@@ -1751,4 +1782,5 @@ function encodeShortest($latitudeDegrees, $longitudeDegrees, $territory = -1)
 }
 
 ?>
+
 

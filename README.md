@@ -25,10 +25,10 @@ limitations under the License.
 
 # PHP Files for Mapcode Support
 
-    mapcode_data.php  - Data table for mapcode support
-    mapcode_func.php  - Key routines for mapcode support
-
-    mapcode_ctrynams.php  - Optional array with english territory names
+    mapcode_data.php         - Data table for mapcode support
+    mapcode_func.php         - Key routines for mapcode support
+    mapcode_fast_encode.php  - Data for fast encoding of coordinates
+    mapcode_ctrynams.php     - Optional array with english territory names
 
     sample.php - Sample php code to interpret or generate mapcodes
     (upload all 4 files to a server, then open sample.php in a web browser)
@@ -41,6 +41,12 @@ limitations under the License.
     README.md                - This document
 
 # Version History
+
+* 2.0.2
+
+    Ported fast_encode from C library (4x faster global encoding);
+
+    Minor improvements (stricter tests);
 
 * 2.0.0
 
