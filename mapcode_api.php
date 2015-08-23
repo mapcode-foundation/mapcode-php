@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-define('mapcode_phpversion', '2.0.2');
+define('mapcode_phpversion', '2.0.3');
 
 $xdivider19 = array(
     360, 360, 360, 360, 360, 360, 361, 361, 361, 361,

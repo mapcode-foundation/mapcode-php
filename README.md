@@ -33,6 +33,8 @@ limitations under the License.
     sample.php - Sample php code to interpret or generate mapcodes
     (upload all 4 files to a server, then open sample.php in a web browser)
 
+    unittest\unittest.php    - Unit test for mapcode library
+
 # Documentation
 
     mapcode_library_php.doc  - Manual: how to use the PHP Mapcode Library
@@ -41,6 +43,10 @@ limitations under the License.
     README.md                - This document
 
 # Version History
+
+* 2.0.3
+
+    Added unittest.php, which verifies that the library works as expected;
 
 * 2.0.2
 
