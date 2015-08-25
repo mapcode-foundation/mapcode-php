@@ -40,12 +40,12 @@ function alphabet_tests()
 
     // see if convertToAlphabet survives empty string
     $GLOBALS['nrTests']++;
-	$str = "";
+    $str = "";
     $enc = convertToAlphabet($str,$i);
-	if ($enc!="") {
+    if ($enc!="") {
       $GLOBALS['nrErrors']++;
       echo 'convertToAlphabet("'.$str.'".'.$i.') != empty<BR>';
-	}
+    }
 
     // see if alphabets (re)convert as expected
     $str    = "OEUoi OIoi#%?-.abcdfghjklmnpqrstvwxyz0123456789ABCDFGHJKLMNPQRSTVWXYZ";
@@ -53,11 +53,11 @@ function alphabet_tests()
     $enc = convertToAlphabet($str,$i);
     $dec = convertToAlphabet($enc,0);
     $GLOBALS['nrTests']++;
-	if ($dec!=$expect) 
-	{
-	  $GLOBALS['nrErrors']++;
-	  echo 'convertToAlphabet(convertToAlphabet("'.$str.'".'.$i.'),0)="'.$dec.'". expected "'.$expect.'"<BR>';
-	}
+    if ($dec!=$expect) 
+    {
+      $GLOBALS['nrErrors']++;
+      echo 'convertToAlphabet(convertToAlphabet("'.$str.'".'.$i.'),0)="'.$dec.'". expected "'.$expect.'"<BR>';
+    }
 
     // see if E/U voweled mapcodes (re)convert as expected
     $str="OMN 112.3EU";
@@ -73,15 +73,15 @@ function alphabet_tests()
 
 // maximum error in meters for a certain nr of high-precision digits
 $maxErrorForPrecision = array(
-		7.49,
-		1.45,
-		0.2502,
-		0.0462,
-		0.00837,
-		0.00154,
-		0.00028,
-		0.000052,
-		0.0000093);
+    7.49,
+    1.45,
+    0.2502,
+    0.0462,
+    0.00837,
+    0.00154,
+    0.00028,
+    0.000052,
+    0.0000093);
 
 function printGeneratedMapcodes($r)
 {
@@ -93,7 +93,7 @@ function printGeneratedMapcodes($r)
 }
 
 // perform an encode/decode test
-$nextlevel=0;
+
 function test_encode_decode( $str, $y, $x, $localsolutions, $globalsolutions ) 
 {
   $nrt = $GLOBALS['nrTests'];
@@ -104,7 +104,7 @@ function test_encode_decode( $str, $y, $x, $localsolutions, $globalsolutions )
 
   // encode globally
   $precision=2;
-  $r = encodeWithPrecision( $y,$x,$precision,-1 );
+  $r = encodeWithPrecision( $y,$x,$precision );
   $n = count($r);
 
   // test if correct nr of global solutions (if requested)
@@ -130,12 +130,12 @@ function test_encode_decode( $str, $y, $x, $localsolutions, $globalsolutions )
 
   // test that EXPECTED solution is there (if requested)
   if (strlen($str)) {
-	  $nrt++;
-	  if ($found == 0) {
-		$GLOBALS['nrErrors']++;
-		echo '*** ERROR *** encode('.number_format($y,8).' . '.number_format($x,8).' . "'.$territory.'" ) does not deliver "'.$str.'"<BR>';
-		printGeneratedMapcodes($r);
-	  }
+    $nrt++;
+    if ($found == 0) {
+      $GLOBALS['nrErrors']++;
+      echo '*** ERROR *** encode('.number_format($y,8).' . '.number_format($x,8).' . "'.$territory.'" ) does not deliver "'.$str.'"<BR>';
+      printGeneratedMapcodes($r);
+    }
   }
 
   // test if correct nr of local solutions (if requested)
@@ -148,7 +148,10 @@ function test_encode_decode( $str, $y, $x, $localsolutions, $globalsolutions )
     }
   }
 
-  if ($globalsolutions) {
+  for ($precision=0; $precision<=0; $precision++) //@@@
+  {
+    $r = encodeWithPrecision( $y,$x,$precision );
+    $n = count($r);
     // check that all global solutions are within 9 milimeters of coordinate
     for ($i = 0; $i < $n; $i++) {
       $nrt++;
@@ -157,31 +160,55 @@ function test_encode_decode( $str, $y, $x, $localsolutions, $globalsolutions )
       $p = decode($str);
       if ($p == 0) {
           echo '*** ERROR *** decode('.$str.') = no result. expected ~('.number_format($y,8).' . '.number_format($x,8).')<BR>';
-	  }
-	  else {
-        // check if decode is sufficiently close to the encoded coordinate
+      }
+      else {
+        // check if decode of $str is sufficiently close to the encoded coordinate
         $dm = distanceInMeters($y, $x, $p->lat, $p->lon);
-		$maxerror = $GLOBALS['maxErrorForPrecision'][$precision];
+        $maxerror = $GLOBALS['maxErrorForPrecision'][$precision];
         if ($dm>$maxerror) {
           $GLOBALS['nrErrors']++;
           echo '*** ERROR *** decode('.$str.') = ('.number_format($p->lat,8).' , '.number_format($p->lon,8).') which is '. number_format($dm*100,2).' cm away (>'.($maxerror*100).' cm)<BR>';
-        } 
+        }
+        else if ($GLOBALS['nrWarnings']<8) {
+          // see if decode encodes back to the same solution
+          $p = strpos($str,' '); 
+          if ($p>0) $territory=substr($str,0,$p); else $territory="AAA";
+
+          $r2 = encodeWithPrecision( $p->lat,$p->lon,$precision, $territory ); 
+          $n2 = count($r);
+          $found=0;
+          for($i2=0; $i2<$n2; $i2++) {
+            if ($r2[$i2]==$str) { 
+              $found=1; 
+              break; 
+            }
+          }
+          // or, if inherited from parent country: the same parent solution
+          if (!$found) {
+            $parent = getParentOf($territory);
+            if ($parent>=0) {
+              $r2 = encodeWithPrecision( $p->lat,$p->lon,$precision, $parent ); 
+              $n2 = count($r);
+              for($i2=0; $i2<$n2; $i2++) {
+                if ($r2[$i2]==$str) { 
+                  $found=1; 
+                  break; 
+                }
+              }
+            }
+          }
+          if (!found) {
+            $GLOBALS['nrWarnings']++;
+            echo '*** WARNING *** decode(' . $str . ') = (' . number_format($p->lat,15) . ', ' . number_format($p->lon,15) . ') does not re-encode from (' . number_format($y,15) . ', ' . number_format($x,15) . ')';
+            printGeneratedMapcodes($r);
+            printGeneratedMapcodes($r2);
+          }
+        }
       }
     }
   }
 
   $GLOBALS['nrTests'] = $nrt;
-
-  // show progress
-  if ($nrt >= $GLOBALS['nextlevel']) {
-    $nextlevel = $GLOBALS['nextlevel'];
-    $total = 145745;
-    echo '<script>progress('.$nrt.','.$total.');</script>';
-    $nextlevel += (($total+99)/100);
-    if ( $nextlevel > $total )
-         $nextlevel = $total;
-	$GLOBALS['nextlevel'] = $nextlevel;
-  }
 }
 
 // test strings that are expected to FAIL a decode
@@ -251,16 +278,16 @@ function test_failing_decodes() {
 
     for ($i=0;;$i++)
     {
-		$str = $badcodes[$i];
-		if ($str=="end")
-			break;
+      $str = $badcodes[$i];
+      if ($str=="end")
+        break;
 
-		$GLOBALS['nrTests']++;
-		$p = decode($str);
-		if ($p) {
-			$GLOBALS['nrErrors']++;
-			echo '*** ERROR *** invalid mapcode "'.$str.'" decodes without error<BR>';
-        }
+      $GLOBALS['nrTests']++;
+      $p = decode($str);
+      if ($p) {
+        $GLOBALS['nrErrors']++;
+        echo '*** ERROR *** invalid mapcode "'.$str.'" decodes without error<BR>';
+      }
     }
 }
 
@@ -281,10 +308,33 @@ function test_territory($alphacode,$tc,$isAlias,$needsParent,$tcParent)
   if ($needsParent==0 && $isAlias==0 && (strlen($alphacode)<=3 || $alphacode[3]!='-')) {
     $GLOBALS['nrTests']++;
     $nam = getTerritoryAlphaCode($ccode);
-	// either perfect match, or "something-alphacode"
-	if ( $nam!=$alphacode && strpos($nam,"-".$alphacode)===false ) {
+    // either perfect match, or "something-alphacode"
+    if ( $nam!=$alphacode && strpos($nam,"-".$alphacode)===false ) {
       $GLOBALS['nrErrors']++;
       echo '*** ERROR *** getTerritoryAlphaCode('.$ccode.')="'.$nam.'" which does not equal or contain "'.$alphacode.'"<BR>';
+    }
+  }
+}
+
+// perform encode/decode tests using the encode_testdata array
+function test_encodes()
+{
+  $t = $GLOBALS['encodes_testdata'];
+  $n=0;
+  while ( $t[$n]!==false ) $n+=5;
+  echo ($n/5) . ' tests<BR>';
+
+  $nextlevel = 0;
+  for ( $i=0; $i<$n ;$i+=5)
+  {
+    test_encode_decode($t[$i],$t[$i+1],$t[$i+2],$t[$i+3],$t[$i+4]);
+    // show progress
+    if ( $i == $nrt >= $GLOBALS['nextlevel']) {
+      if ($i >= $nextlevel) {
+        echo '<script>progress('.($i+5).','.$n.');</script>';
+        $nextlevel += 500;
+        if ( $nextlevel > $n-5 ) $nextlevel = $n-5;
+      }
     }
   }
 }
@@ -299,8 +349,10 @@ function test_territory($alphacode,$tc,$isAlias,$needsParent,$tcParent)
   echo MAX_CCODE . " territories<BR>";
   test_territories(); // uses test_territory()
 
-  echo '<HR>Encode/Decode tests <font id="prog">0</font>%<BR>';
+  echo '<HR>Decode tests<BR>';
   test_failing_decodes();
+
+  echo '<HR>Encode/Decode tests <font id="prog">0</font>%<BR>';
   test_encodes(); // uses test_encode_decode()
 
   echo '<HR>Done.<BR>';

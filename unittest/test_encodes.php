@@ -1,9 +1,7 @@
 <?php
 
-function test_encodes()
-{
 
-$testdata = array(
+$encodes_testdata = array(
 
 "IN-NL WKS.H6",26.904854, 95.138497, 5,21,
 
@@ -15838,12 +15836,5 @@ $testdata = array(
 "CN-XJ 1123.XXX",46.5077535,85.415168000,2,6,
 "CN-XJ 2123.XXX",46.3668825,88.710783500,2,4,
 false );
-
-for ( $i=0; $testdata[$i]!==false ;$i+=5)
-{
-	test_encode_decode($testdata[$i],$testdata[$i+1],$testdata[$i+2],$testdata[$i+3],$testdata[$i+4]);
-}
-  
-}
 
 ?>
