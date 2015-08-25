@@ -8,7 +8,7 @@
 <script>
 function progress(x,total) {
   var e = document.getElementById("prog");
-  if (e) e.innerHTML = Math.floor((x*100.0)/total);
+  if (e) e.innerHTML = x+'/'+total+' '+Math.floor((x*100.0)/total);
 }
 </script>
 
@@ -21,7 +21,7 @@ include '../mapcode_api.php';
 include 'test_territories.php';
 include 'test_encodes.php';
 
-echo "Mapcode Unittest version 2.0.3<BR>";
+echo "Mapcode Unittest version 2.0.4<BR>";
 echo "Mapcode PHP version "  . mapcode_phpversion . "<BR>";
 echo "Mapcode DATA version " . mapcode_dataversion . "<BR>";
 if ($redivar) echo "Mapcode fast_encode loaded<BR>";
@@ -321,20 +321,21 @@ function test_encodes()
 {
   $t = $GLOBALS['encodes_testdata'];
   $n=0;
-  while ( $t[$n]!==false ) $n+=5;
-  echo ($n/5) . ' tests<BR>';
+  while ( $t[$n*5]!==false ) $n++;
+  echo $n . ' tests<BR>';
 
+  $i = intval($_GET["start"])-1;
+  if ($i<0) $i=0;  
   $nextlevel = 0;
-  for ( $i=0; $i<$n ;$i+=5)
+  while ($i<$n)
   {
-    test_encode_decode($t[$i],$t[$i+1],$t[$i+2],$t[$i+3],$t[$i+4]);
+    test_encode_decode($t[5*$i],$t[5*$i+1],$t[5*$i+2],$t[5*$i+3],$t[5*$i+4]);
+    $i++;
     // show progress
-    if ( $i == $nrt >= $GLOBALS['nextlevel']) {
-      if ($i >= $nextlevel) {
-        echo '<script>progress('.($i+5).','.$n.');</script>';
-        $nextlevel += 500;
-        if ( $nextlevel > $n-5 ) $nextlevel = $n-5;
-      }
+    if ($i >= $nextlevel) {
+      echo '<script>progress('.$i.','.$n.');</script>';
+      $nextlevel += 100;
+      if ( $nextlevel > $n ) $nextlevel = $n;
     }
   }
 }
