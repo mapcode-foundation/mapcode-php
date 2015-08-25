@@ -29,7 +29,6 @@ if ($redivar) echo "Mapcode fast_encode loaded<BR>";
 // globals to count tests, errors and warnings
 $nrTests=0;
 $nrErrors=0;
-$nrWarnings=0;
 
 // test the alphabet conversion routines 
 function alphabet_tests()
@@ -174,14 +173,14 @@ function test_encode_decode( $str, $y, $x, $localsolutions, $globalsolutions )
           $GLOBALS['nrErrors']++;
           echo '*** ERROR *** decode('.$str.') = ('.number_format($p->lat,14).' , '.number_format($p->lon,14).') which is '. number_format($dm*100,2).' cm away (>'.($maxerror*100).' cm) from (' . number_format($y,14) . ', ' . number_format($x,14) . ')<BR>';
         }
-        else if ($GLOBALS['nrWarnings']<20) {
+        else {
           // see if decode encodes back to the same solution
           $j = strpos($str,' '); 
           if ($j>0) $territory=substr($str,0,$j); else $territory="AAA";
 
-          $r3 = false;
+          $r3 = '';
           $r2 = encodeWithPrecision( $p->lat,$p->lon,$precision, $territory ); 
-          $n2 = count($r);
+          $n2 = count($r2);
           $found=0;
           for($i2=0; $i2<$n2; $i2++) {
             if ($r2[$i2]==$str) { 
@@ -195,7 +194,7 @@ function test_encode_decode( $str, $y, $x, $localsolutions, $globalsolutions )
             if ($parent>=0) {
               $proper = substr($str,strpos($str," "));
               $r3 = encodeWithPrecision( $p->lat,$p->lon,$precision, $parent ); 
-              $n3 = count($r);
+              $n3 = count($r3);
               for($i3=0; $i3<$n3; $i3++) {
                 $r3proper = substr($r3[$i3],strpos($r3[$i3]," "));
                 if ($r3proper==$proper) { 
@@ -206,12 +205,11 @@ function test_encode_decode( $str, $y, $x, $localsolutions, $globalsolutions )
             }
           }
           if (!$found) {
-            echo '*** WARNING *** decode(' . $str . ') = (' . number_format($p->lat,14) . ', ' . number_format($p->lon,14) . ', '.$territory.') does not re-encode from (' . number_format($y,14) . ', ' . number_format($x,14) . ')<BR>';
-            printGeneratedMapcodes($r);
-            printGeneratedMapcodes($r2);
-            if ($r3!==false) printGeneratedMapcodes($r3);
-            $GLOBALS['nrWarnings']++;
-            if ($GLOBALS['nrWarnings'] == 20) echo "*** ERROR *** too many warnings<BR>";
+            echo '*** ERROR *** decode(' . $str . ') = (' . number_format($p->lat,14) . ', ' . number_format($p->lon,14) . ', '.$territory.') does not re-encode from (' . number_format($y,14) . ', ' . number_format($x,14) . ')<BR>';
+            echo 'Globals:'; printGeneratedMapcodes($r);
+            echo 'Decoded:'; printGeneratedMapcodes($r2);
+            echo 'Parents:'; printGeneratedMapcodes($r3);
+            $GLOBALS['nrErrors']++;
           }
         }
       }
@@ -406,7 +404,8 @@ function test_corner_encodes()
     if ($i>0) $GLOBALS['next_corner_to_test'] = $i;
     while (test_corner_encodes()) ;
   }
-
+  
+  /**/
   echo '<HR>Done.<BR>';
   echo ' Executed ',$nrTests,' tests, found ', $nrErrors,' errors<P>';
 
