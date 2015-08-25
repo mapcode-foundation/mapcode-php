@@ -1574,20 +1574,15 @@ function encodeAutoHeader($enc, $m, $extraDigits)
             $extray = (($mm->maxy - $enc->coord32->lat) % $dividery);
 
             $spx = $vx % 168;
-            $spy = $vy % 176;
-
             $vx = (int)($vx / 168);
             $value = $vx * (int)($H / 176);
 
             if ($extray == 0 && $enc->fraclat > 0) {
-                if ($vy == 0) {
-                    $STORAGE_START += $product;
-                    continue;
-                }
                 $vy--;
                 $extray += $dividery;
             }
 
+            $spy = $vy % 176;
             $vy = (int)($vy / 176);
             $value += $vy;
 
