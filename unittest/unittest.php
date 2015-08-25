@@ -6,8 +6,8 @@
 <body>
 
 <script>
-function progress(x,total) {
-  var e = document.getElementById("prog");
+function progress(id,x,total) {
+  var e = document.getElementById(id);
   if (e) e.innerHTML = x+'/'+total+' '+Math.floor((x*100.0)/total);
 }
 </script>
@@ -21,7 +21,7 @@ include '../mapcode_api.php';
 include 'test_territories.php';
 include 'test_encodes.php';
 
-echo "Mapcode Unittest version 2.0.4<BR>";
+echo "Mapcode Unittest version 2.1.0<BR>";
 echo "Mapcode PHP version "  . mapcode_phpversion . "<BR>";
 echo "Mapcode DATA version " . mapcode_dataversion . "<BR>";
 if ($redivar) echo "Mapcode fast_encode loaded<BR>";
@@ -96,14 +96,15 @@ function printGeneratedMapcodes($r)
 
 function test_encode_decode( $str, $y, $x, $localsolutions, $globalsolutions ) 
 {
+  if ($GLOBALS['nrErrors']>20) return;
   $nrt = $GLOBALS['nrTests'];
 
   $str=trim($str);
-  $p = strpos($str,' '); 
-  if ($p>0) $territory=substr($str,0,$p); else $territory="AAA";
+  $j = strpos($str,' '); 
+  if ($j>0) $territory=substr($str,0,$j); else $territory="AAA";
 
   // encode globally
-  $precision=2;
+  $precision = 2;
   $r = encodeWithPrecision( $y,$x,$precision );
   $n = count($r);
 
@@ -117,38 +118,41 @@ function test_encode_decode( $str, $y, $x, $localsolutions, $globalsolutions )
     }
   }
 
-  // count local solutions, look for expected solution
-  $found = 0;
-  $nrlocal = 0;
-  for ($i=0;$i<$n;$i++) {
-    if (strpos($r[$i],$territory.' ')===0) {
-      $nrlocal++;
-      if (strpos($r[$i],$str)===0)
-        $found = 1;
+  if ($localsolutions || strlen($str)>0) 
+  {
+    // count local solutions, look for expected solution
+    $found = 0;
+    $nrlocal = 0;
+    for ($i=0;$i<$n;$i++) {
+      if (strpos($r[$i],$territory.' ')===0) {
+        $nrlocal++;
+        if (strpos($r[$i],$str)===0)
+          $found = 1;
+      }
+    }
+
+    // test that EXPECTED solution is there (if requested)
+    if (strlen($str)) {
+      $nrt++;
+      if ($found == 0) {
+        $GLOBALS['nrErrors']++;
+        echo '*** ERROR *** encode('.number_format($y,14).' . '.number_format($x,14).' . "'.$territory.'" ) does not deliver "'.$str.'"<BR>';
+        printGeneratedMapcodes($r);
+      }
+    }
+
+    // test if correct nr of local solutions (if requested)
+    if ($localsolutions) {
+      $nrt++;
+      if ($nrlocal!=$localsolutions) {
+        $GLOBALS['nrErrors']++;
+        echo '*** ERROR *** encode('.number_format($y,14).' . '.number_format($x,14).' . "'.$territory.'" ) does not deliver '.$localsolutions.' solutions<BR>';
+        printGeneratedMapcodes($r);
+      }
     }
   }
 
-  // test that EXPECTED solution is there (if requested)
-  if (strlen($str)) {
-    $nrt++;
-    if ($found == 0) {
-      $GLOBALS['nrErrors']++;
-      echo '*** ERROR *** encode('.number_format($y,8).' . '.number_format($x,8).' . "'.$territory.'" ) does not deliver "'.$str.'"<BR>';
-      printGeneratedMapcodes($r);
-    }
-  }
-
-  // test if correct nr of local solutions (if requested)
-  if ($localsolutions) {
-    $nrt++;
-    if ($nrlocal!=$localsolutions) {
-      $GLOBALS['nrErrors']++;
-      echo '*** ERROR *** encode('.number_format($y,8).' . '.number_format($x,8).' . "'.$territory.'" ) does not deliver '.$localsolutions.' solutions<BR>';
-      printGeneratedMapcodes($r);
-    }
-  }
-
-  for ($precision=0; $precision<=0; $precision++) //@@@
+  for ($precision=0; $precision<=0; $precision++)
   {
     $r = encodeWithPrecision( $y,$x,$precision );
     $n = count($r);
@@ -159,7 +163,8 @@ function test_encode_decode( $str, $y, $x, $localsolutions, $globalsolutions )
       // check if every solution decodes
       $p = decode($str);
       if ($p == 0) {
-          echo '*** ERROR *** decode('.$str.') = no result. expected ~('.number_format($y,8).' . '.number_format($x,8).')<BR>';
+          $GLOBALS['nrErrors']++;
+          echo '*** ERROR *** decode('.$str.') = no result. expected ~('.number_format($y,14).' . '.number_format($x,14).')<BR>';
       }
       else {
         // check if decode of $str is sufficiently close to the encoded coordinate
@@ -167,13 +172,14 @@ function test_encode_decode( $str, $y, $x, $localsolutions, $globalsolutions )
         $maxerror = $GLOBALS['maxErrorForPrecision'][$precision];
         if ($dm>$maxerror) {
           $GLOBALS['nrErrors']++;
-          echo '*** ERROR *** decode('.$str.') = ('.number_format($p->lat,8).' , '.number_format($p->lon,8).') which is '. number_format($dm*100,2).' cm away (>'.($maxerror*100).' cm)<BR>';
+          echo '*** ERROR *** decode('.$str.') = ('.number_format($p->lat,14).' , '.number_format($p->lon,14).') which is '. number_format($dm*100,2).' cm away (>'.($maxerror*100).' cm) from (' . number_format($y,14) . ', ' . number_format($x,14) . ')<BR>';
         }
-        else if ($GLOBALS['nrWarnings']<8) {
+        else if ($GLOBALS['nrWarnings']<20) {
           // see if decode encodes back to the same solution
-          $p = strpos($str,' '); 
-          if ($p>0) $territory=substr($str,0,$p); else $territory="AAA";
+          $j = strpos($str,' '); 
+          if ($j>0) $territory=substr($str,0,$j); else $territory="AAA";
 
+          $r3 = false;
           $r2 = encodeWithPrecision( $p->lat,$p->lon,$precision, $territory ); 
           $n2 = count($r);
           $found=0;
@@ -187,21 +193,25 @@ function test_encode_decode( $str, $y, $x, $localsolutions, $globalsolutions )
           if (!$found) {
             $parent = getParentOf($territory);
             if ($parent>=0) {
-              $r2 = encodeWithPrecision( $p->lat,$p->lon,$precision, $parent ); 
-              $n2 = count($r);
-              for($i2=0; $i2<$n2; $i2++) {
-                if ($r2[$i2]==$str) { 
+              $proper = substr($str,strpos($str," "));
+              $r3 = encodeWithPrecision( $p->lat,$p->lon,$precision, $parent ); 
+              $n3 = count($r);
+              for($i3=0; $i3<$n3; $i3++) {
+                $r3proper = substr($r3[$i3],strpos($r3[$i3]," "));
+                if ($r3proper==$proper) { 
                   $found=1; 
                   break; 
                 }
               }
             }
           }
-          if (!found) {
-            $GLOBALS['nrWarnings']++;
-            echo '*** WARNING *** decode(' . $str . ') = (' . number_format($p->lat,15) . ', ' . number_format($p->lon,15) . ') does not re-encode from (' . number_format($y,15) . ', ' . number_format($x,15) . ')';
+          if (!$found) {
+            echo '*** WARNING *** decode(' . $str . ') = (' . number_format($p->lat,14) . ', ' . number_format($p->lon,14) . ', '.$territory.') does not re-encode from (' . number_format($y,14) . ', ' . number_format($x,14) . ')<BR>';
             printGeneratedMapcodes($r);
             printGeneratedMapcodes($r2);
+            if ($r3!==false) printGeneratedMapcodes($r3);
+            $GLOBALS['nrWarnings']++;
+            if ($GLOBALS['nrWarnings'] == 20) echo "*** ERROR *** too many warnings<BR>";
           }
         }
       }
@@ -286,7 +296,7 @@ function test_failing_decodes() {
       $p = decode($str);
       if ($p) {
         $GLOBALS['nrErrors']++;
-        echo '*** ERROR *** invalid mapcode "'.$str.'" decodes without error<BR>';
+        echo '*** ERROR *** invalid mapcode "'.$str.'" decodes without error ('.number_format($p->lat,14).','.number_format($p->lon,14).')<BR>';
       }
     }
 }
@@ -319,25 +329,59 @@ function test_territory($alphacode,$tc,$isAlias,$needsParent,$tcParent)
 // perform encode/decode tests using the encode_testdata array
 function test_encodes()
 {
+  // count nr of tests
   $t = $GLOBALS['encodes_testdata'];
   $n=0;
   while ( $t[$n*5]!==false ) $n++;
-  echo $n . ' tests<BR>';
 
+  // executed (optionally, from "start" parameter)
   $i = intval($_GET["start"])-1;
   if ($i<0) $i=0;  
-  $nextlevel = 0;
+  $nextlevel = $i;
   while ($i<$n)
   {
     test_encode_decode($t[5*$i],$t[5*$i+1],$t[5*$i+2],$t[5*$i+3],$t[5*$i+4]);
     $i++;
     // show progress
     if ($i >= $nextlevel) {
-      echo '<script>progress('.$i.','.$n.');</script>';
-      $nextlevel += 100;
+      echo '<script>progress("prog2",'.$i.','.$n.');</script>';
+      $nextlevel = 20 + 20 * floor($i/20);
       if ( $nextlevel > $n ) $nextlevel = $n;
     }
   }
+}
+
+
+$next_corner_to_test = 0;
+function test_corner_encodes()
+{
+	$tests_per_timeslot = 5;
+	$last = dataLastRecord(ccode_earth);
+	for ($m=$GLOBALS['next_corner_to_test']; $m<$last; $m++) {
+		if ($GLOBALS['nrErrors']>20) {
+			echo 'Too many errors!<BR>';
+			return 0;
+		}
+		if ($tests_per_timeslot-- == 0) {
+			$GLOBALS['next_corner_to_test'] = $m;
+      echo '<script>progress("prog1",'.$m.','.$last.');</script>';
+			return 1;
+		}
+		$mm = minmaxSetup($m);
+    // center
+		test_encode_decode( "", ($mm->miny+$mm->maxy)/2000000, ($mm->minx+$mm->maxx)/2000000, 0,0 );
+    // corner just inside
+		test_encode_decode( "", $mm->miny/1000000.0, $mm->minx/1000000.0, 0,0 );
+    // corner just outside y
+		test_encode_decode( "", ($mm->miny-0.000001)/1000000.0, ($mm->minx)/1000000.0, 0,0 );
+    // corner just outside x
+		test_encode_decode( "", ($mm->miny)/1000000.0, ($mm->minx-0.000001)/1000000.0, 0,0 );
+		// corner opposite just inside
+		test_encode_decode( "", ($mm->maxy-0.000001)/1000000.0, ($mm->maxx-0.000001)/1000000.0, 0,0 );
+		// corner opposite just outside
+		test_encode_decode( "", ($mm->maxy)/1000000.0, ($mm->maxx)/1000000.0, 0,0 );
+	}
+	return 0;
 }
 
 
@@ -350,11 +394,18 @@ function test_encodes()
   echo MAX_CCODE . " territories<BR>";
   test_territories(); // uses test_territory()
 
-  echo '<HR>Decode tests<BR>';
+  echo '<HR>Decode fail tests<BR>';
   test_failing_decodes();
 
-  echo '<HR>Encode/Decode tests <font id="prog">0</font>%<BR>';
+  echo '<HR>Encode/Decode tests <font id="prog2">0</font>%<BR>';
   test_encodes(); // uses test_encode_decode()
+
+  echo '<HR>Edge encode/decode tests <font id="prog1">0</font>%<BR>';
+  {
+    $i = intval($_GET["edge"])-1;
+    if ($i>0) $GLOBALS['next_corner_to_test'] = $i;
+    while (test_corner_encodes()) ;
+  }
 
   echo '<HR>Done.<BR>';
   echo ' Executed ',$nrTests,' tests, found ', $nrErrors,' errors<P>';
