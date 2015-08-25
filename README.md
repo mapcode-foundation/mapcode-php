@@ -44,6 +44,12 @@ limitations under the License.
 
 # Version History
 
+* 2.1.0
+
+    Rewrote fraction floating points to integer arithmetic;
+
+    Several fixes; extended unit tests;
+
 * 2.0.3
 
     Added unittest.php, which verifies that the library works as expected;
