@@ -21,7 +21,7 @@ include '../mapcode_api.php';
 include 'test_territories.php';
 include 'test_encodes.php';
 
-echo "Mapcode Unittest version 2.1.0<BR>";
+echo "Mapcode Unittest version 2.1.1<BR>";
 echo "Mapcode PHP version "  . mapcode_phpversion . "<BR>";
 echo "Mapcode DATA version " . mapcode_dataversion . "<BR>";
 if ($redivar) echo "Mapcode fast_encode loaded<BR>";
@@ -349,37 +349,73 @@ function test_encodes()
   }
 }
 
+function distance_tests()
+{
+  if (mapcode_phpversion>='2.1.1') {
+    $coordpairs = array(
+      // lat1, lon1, lat2, lon2, expected distance * 100000
+      // lat1, lon1, lat2, lon2, expected distance * 100000
+      1,1,1,1,0,
+      0,0,0,1,11131949079,
+      89,0,89,1,194279300,
+      3,0,3,1,11116693130,
+      -3,0,-3,1,11116693130,
+      -3,-179.5,-3,179.5,11116693130,
+      -3,179.5,-3,-179.5,11116693130,
+      3,8,3,9,11116693130,
+      3,-8,3,-9,11116693130,
+      3,-0.5,3,0.5,11116693130,
+      54,5,54.000001,5,11095,
+      54,5,54,5.000001,6543,
+      54,5,54.000001,5.000001,12880,
+      90,0,90,50,0,
+      0.11,0.22,0.12,0.2333,185011466,
+    -1);
+    
+    for($i=0;$coordpairs[$i]!=-1;$i+=5) {
+      $GLOBALS['nrTests']++;
+      $distance = distanceInMeters( 
+        $coordpairs[$i],$coordpairs[$i+1],
+        $coordpairs[$i+2],$coordpairs[$i+3]);
+      if ( floor(0.5+(100000.0 * $distance)) != $coordpairs[$i+4] ) {
+        $GLOBALS['nrErrors']++;
+        echo '*** ERROR *** distanceInMeters '.$i.' failed: '.$distance.'<BR>';
+      }
+    }
+  }
+}
+
 
 $next_corner_to_test = 0;
 function test_corner_encodes()
 {
-	$tests_per_timeslot = 5;
-	$last = dataLastRecord(ccode_earth);
-	for ($m=$GLOBALS['next_corner_to_test']; $m<$last; $m++) {
-		if ($GLOBALS['nrErrors']>20) {
-			echo 'Too many errors!<BR>';
-			return 0;
-		}
-		if ($tests_per_timeslot-- == 0) {
-			$GLOBALS['next_corner_to_test'] = $m;
+  $tests_per_timeslot = 5;
+  $last = dataLastRecord(ccode_earth);
+  for ($m=$GLOBALS['next_corner_to_test']; $m<$last; $m++) {
+    if ($GLOBALS['nrErrors']>20) {
+      echo 'Too many errors!<BR>';
+      return 0;
+    }
+    if ($tests_per_timeslot-- == 0) {
+      $GLOBALS['next_corner_to_test'] = $m;
       echo '<script>progress("prog1",'.$m.','.$last.');</script>';
-			return 1;
-		}
-		$mm = minmaxSetup($m);
+      return 1;
+    }
+    $mm = minmaxSetup($m);
     // center
-		test_encode_decode( "", ($mm->miny+$mm->maxy)/2000000, ($mm->minx+$mm->maxx)/2000000, 0,0 );
+    test_encode_decode( "", ($mm->miny+$mm->maxy)/2000000, ($mm->minx+$mm->maxx)/2000000, 0,0 );
     // corner just inside
-		test_encode_decode( "", $mm->miny/1000000.0, $mm->minx/1000000.0, 0,0 );
+    test_encode_decode( "", $mm->miny/1000000.0, $mm->minx/1000000.0, 0,0 );
     // corner just outside y
-		test_encode_decode( "", ($mm->miny-0.000001)/1000000.0, ($mm->minx)/1000000.0, 0,0 );
+    test_encode_decode( "", ($mm->miny-0.000001)/1000000.0, ($mm->minx)/1000000.0, 0,0 );
     // corner just outside x
-		test_encode_decode( "", ($mm->miny)/1000000.0, ($mm->minx-0.000001)/1000000.0, 0,0 );
-		// corner opposite just inside
-		test_encode_decode( "", ($mm->maxy-0.000001)/1000000.0, ($mm->maxx-0.000001)/1000000.0, 0,0 );
-		// corner opposite just outside
-		test_encode_decode( "", ($mm->maxy)/1000000.0, ($mm->maxx)/1000000.0, 0,0 );
-	}
-	return 0;
+    test_encode_decode( "", ($mm->miny)/1000000.0, ($mm->minx-0.000001)/1000000.0, 0,0 );
+    // corner opposite just inside
+    test_encode_decode( "", ($mm->maxy-0.000001)/1000000.0, ($mm->maxx-0.000001)/1000000.0, 0,0 );
+    // corner opposite just outside
+    test_encode_decode( "", ($mm->maxy)/1000000.0, ($mm->maxx)/1000000.0, 0,0 );
+  }
+  return 0;
 }
 
 
@@ -387,6 +423,9 @@ function test_corner_encodes()
 
   echo '<HR>Character tests<BR>';
   alphabet_tests();
+
+  echo '<HR>Distance tests<BR>';
+  distance_tests();
 
   echo '<HR>Territory tests<BR>';
   echo MAX_CCODE . " territories<BR>";

@@ -44,6 +44,10 @@ limitations under the License.
 
 # Version History
 
+* 2.1.1
+
+    Added useful routine DistanceInMeters to API
+
 * 2.1.0
 
     Rewrote fraction floating points to integer arithmetic;

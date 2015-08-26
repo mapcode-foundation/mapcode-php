@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-define('mapcode_phpversion', '2.1.0');
+define('mapcode_phpversion', '2.1.1');
 
 $xdivider19 = array(
     360, 360, 360, 360, 360, 360, 361, 361, 361, 361,
@@ -1577,11 +1577,6 @@ function encodeNameless($enc, $m, $firstcode, $extraDigits)
     $SIDE = smartdiv($m);
     $orgSIDE = $SIDE;
     $XSIDE = $SIDE;
-    if (isSpecialShape($m)) {
-        $XSIDE *= $SIDE;
-        $SIDE = 1 + (int)(($mm->maxy - $mm->miny) / 90);
-        $XSIDE = (int)($XSIDE / $SIDE);
-    }
 
     $dividerx4 = xDivider4($mm->miny, $mm->maxy);
     $xFracture = (int)(4 * $enc->fraclon / 3240000);
@@ -1599,6 +1594,9 @@ function encodeNameless($enc, $m, $firstcode, $extraDigits)
 
     $v = $storage_offset;
     if (isSpecialShape($m)) {
+        $XSIDE *= $SIDE;
+        $SIDE = 1 + (int)(($mm->maxy - $mm->miny) / 90);
+        $XSIDE = (int)($XSIDE / $SIDE);
         $v += encodeSixWide($dx, $SIDE - 1 - $dy, $XSIDE, $SIDE);
     } else {
         $v += ($dx * $SIDE + $dy);
@@ -1797,29 +1795,11 @@ function mapcoderEngine($enc, $tn, $getshortest, $isrecursive, $state_override, 
 
 function distanceInMeters($latDeg1, $lonDeg1, $latDeg2, $lonDeg2)
 {
-    $worstParallel = 0;
-    if ($latDeg1 > $latDeg2) {
-        if ($latDeg1 < 0) {
-            $worstParallel = $latDeg2;
-        } else {
-            if ($latDeg2 > 0) {
-                $worstParallel = $latDeg1;
-            }
-        }
-    } else {
-        if ($latDeg2 < 0) {
-            $worstParallel = $latDeg1;
-        } else {
-            if ($latDeg1 > 0) {
-                $worstParallel = $latDeg2;
-            }
-        }
-    }
-    $dy = ($latDeg2 - $latDeg1);
     if ($lonDeg1 < 0 && $lonDeg2 > 1) { $lonDeg1 += 360; }
     if ($lonDeg2 < 0 && $lonDeg1 > 1) { $lonDeg2 += 360; }
-    $dx = ($lonDeg2 - $lonDeg1) * cos(deg2rad($worstParallel));
-    return sqrt($dx * $dx + $dy * $dy) * 1000000.0 / 9.0;
+    $dx = 111319.49079327 * ($lonDeg2 - $lonDeg1) * cos(deg2rad(($latDeg1 + $latDeg2) / 2.0));
+    $dy = 110946.25213273 * ($latDeg2 - $latDeg1);
+    return sqrt($dx * $dx + $dy * $dy);
 }
 
 /// PUBLIC convert a mapcode (without territory abbreviation) into a particular alphabet
