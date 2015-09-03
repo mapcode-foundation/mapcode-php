@@ -9,6 +9,7 @@
 function progress(id,x,total) {
   var e = document.getElementById(id);
   if (e) e.innerHTML = x+'/'+total+' '+Math.floor((x*100.0)/total);
+  // @@@ e.innerHTML = '<A HREF="unittest.php?start=' + 99999 + '&edge=' + x + '">' + x + '</A>';
 }
 </script>
 
@@ -21,7 +22,7 @@ include '../mapcode_api.php';
 include 'test_territories.php';
 include 'test_encodes.php';
 
-echo "Mapcode Unittest version 2.1.1<BR>";
+echo "Mapcode Unittest version 2.1.4<BR>";
 echo "Mapcode PHP version "  . mapcode_phpversion . "<BR>";
 echo "Mapcode DATA version " . mapcode_dataversion . "<BR>";
 if ($redivar) echo "Mapcode fast_encode loaded<BR>";
@@ -204,7 +205,7 @@ function test_encode_decode( $str, $y, $x, $localsolutions, $globalsolutions )
               }
             }
           }
-          if (!$found) {
+          if (!$found && !multipleBordersNearby($p, $territory) ) {
             echo '*** ERROR *** decode(' . $str . ') = (' . number_format($p->lat,14) . ', ' . number_format($p->lon,14) . ', '.$territory.') does not re-encode from (' . number_format($y,14) . ', ' . number_format($x,14) . ')<BR>';
             echo 'Globals:'; printGeneratedMapcodes($r);
             echo 'Decoded:'; printGeneratedMapcodes($r2);
@@ -343,7 +344,8 @@ function test_encodes()
     // show progress
     if ($i >= $nextlevel) {
       echo '<script>progress("prog2",'.$i.','.$n.');</script>';
-      $nextlevel = 20 + 20 * floor($i/20);
+      $iterations = 100;
+      $nextlevel = $iterations * (1 + floor($i/$iterations));
       if ( $nextlevel > $n ) $nextlevel = $n;
     }
   }
@@ -389,7 +391,7 @@ function distance_tests()
 $next_corner_to_test = 0;
 function test_corner_encodes()
 {
-  $tests_per_timeslot = 5;
+  $tests_per_timeslot = 100;
   $last = dataLastRecord(ccode_earth);
   for ($m=$GLOBALS['next_corner_to_test']; $m<$last; $m++) {
     if ($GLOBALS['nrErrors']>20) {
@@ -420,7 +422,6 @@ function test_corner_encodes()
 
 
 ///////////////////////////////////////////////
-
   echo '<HR>Character tests<BR>';
   alphabet_tests();
 
