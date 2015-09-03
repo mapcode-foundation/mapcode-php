@@ -37,7 +37,7 @@
     $input = trim($_REQUEST["s"]);
     if ($input != NULL) {
         //$input = utf8_decode(mb_convert_encoding($input,"utf-8" ));
-        if (strpos($input, ',') !== false) // conrtains a comma, so assume coordinates
+        if (strpos($input, ',') !== false) // contains a comma, so assume coordinates
         {
             $p = strpos($input, ',');
             $lat = substr($input, 0, $p);
@@ -78,8 +78,8 @@
     Enter a mapcode
     <BR>
     (e.g. <A HREF="sample.php?s=NLD 49.4V"><B>NLD 49.4V</B></A>
-    or <A HREF="http://www.turingfoundation.org/php/php/sample.php?s=MOW+%D0%9F%D0%96.%D0%A3%D0%91"><B>MOW &#1055;&#1046;.&#1059;&#1041;</B></A>
-    or <A HREF="http://www.turingfoundation.org/php/php/sample.php?s=MH+%E0%A5%AB%E0%A4%97.%E0%A4%B8%E0%A4%A1%E0%A4%9C"><B>MH
+    or <A HREF="sample.php?s=MOW+%D0%9F%D0%96.%D0%A3%D0%91"><B>MOW &#1055;&#1046;.&#1059;&#1041;</B></A>
+    or <A HREF="sample.php?s=MH+%E0%A5%AB%E0%A4%97.%E0%A4%B8%E0%A4%A1%E0%A4%9C"><B>MH
             &#2411;&#2327;.&#2360;&#2337;&#2332;</B></A>)
 
     <BR>
