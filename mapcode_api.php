@@ -384,12 +384,8 @@ class EncodeRec
 
     public function __construct($lat, $lon)
     {
-
-        if (!is_numeric($lat)) {
-            $lat = 0;
-        } else {
-            $lat += 0;
-        }
+        $lat = floatval(trim($lat));
+        $lon = floatval(trim($lon));
         if ($lat > 90) {
             $lat = 90;
         } else {
@@ -1866,13 +1862,13 @@ function mapcoderEngine($enc, $tn, $getshortest, $isrecursive, $state_override, 
 function maxErrorinMeters($precision) {
     $maxErrorForPrecision = array(
         7.49,
-        1.45,
-        0.2502,
+        1.39,
+        0.251,
         0.0462,
         0.00837,
         0.00154,
-        0.00028,
-        0.000052,
+        0.000279,
+        0.0000514,
         0.0000093);
     return $maxErrorForPrecision[$precision];
 }
