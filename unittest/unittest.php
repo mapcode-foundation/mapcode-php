@@ -22,7 +22,7 @@ include '../mapcode_api.php';
 include 'test_territories.php';
 include 'test_encodes.php';
 
-echo "Mapcode Unittest version 2.1.4<BR>";
+echo "Mapcode Unittest version 2.1.5<BR>";
 echo "Mapcode PHP version "  . mapcode_phpversion . "<BR>";
 echo "Mapcode DATA version " . mapcode_dataversion . "<BR>";
 if ($redivar) echo "Mapcode fast_encode loaded<BR>";
@@ -70,18 +70,6 @@ function alphabet_tests()
     }
   }
 }
-
-// maximum error in meters for a certain nr of high-precision digits
-$maxErrorForPrecision = array(
-    7.49,
-    1.45,
-    0.2502,
-    0.0462,
-    0.00837,
-    0.00154,
-    0.00028,
-    0.000052,
-    0.0000093);
 
 function printGeneratedMapcodes($r)
 {
@@ -169,7 +157,7 @@ function test_encode_decode( $str, $y, $x, $localsolutions, $globalsolutions )
       else {
         // check if decode of $str is sufficiently close to the encoded coordinate
         $dm = distanceInMeters($y, $x, $p->lat, $p->lon);
-        $maxerror = $GLOBALS['maxErrorForPrecision'][$precision];
+        $maxerror = maxErrorinMeters($precision);
         if ($dm>$maxerror) {
           $GLOBALS['nrErrors']++;
           echo '*** ERROR *** decode('.$str.') = ('.number_format($p->lat,14).' , '.number_format($p->lon,14).') which is '. number_format($dm*100,2).' cm away (>'.($maxerror*100).' cm) from (' . number_format($y,14) . ', ' . number_format($x,14) . ')<BR>';
@@ -335,19 +323,19 @@ function test_encodes()
 
   // executed (optionally, from "start" parameter)
   $i = intval($_GET["start"])-1;
-  if ($i<0) $i=0;  
+  if ($i<0) $i=0;
   $nextlevel = $i;
-  while ($i<$n)
+  while ($i <= $n)
   {
-    test_encode_decode($t[5*$i],$t[5*$i+1],$t[5*$i+2],$t[5*$i+3],$t[5*$i+4]);
-    $i++;
-    // show progress
     if ($i >= $nextlevel) {
       echo '<script>progress("prog2",'.$i.','.$n.');</script>';
+      if ( $i == $n ) break;
       $iterations = 100;
       $nextlevel = $iterations * (1 + floor($i/$iterations));
       if ( $nextlevel > $n ) $nextlevel = $n;
     }
+    test_encode_decode($t[5*$i],$t[5*$i+1],$t[5*$i+2],$t[5*$i+3],$t[5*$i+4]);
+    $i++;
   }
 }
 
@@ -391,16 +379,17 @@ function distance_tests()
 $next_corner_to_test = 0;
 function test_corner_encodes()
 {
-  $tests_per_timeslot = 100;
+  $tests_per_timeslot = 20;
   $last = dataLastRecord(ccode_earth);
-  for ($m=$GLOBALS['next_corner_to_test']; $m<$last; $m++) {
+  $m=$GLOBALS['next_corner_to_test'];
+  echo '<script>progress("prog1",'.$m.','.$last.');</script>';
+  for (; $m < $last; $m++) {
     if ($GLOBALS['nrErrors']>20) {
       echo 'Too many errors!<BR>';
       return 0;
     }
     if ($tests_per_timeslot-- == 0) {
       $GLOBALS['next_corner_to_test'] = $m;
-      echo '<script>progress("prog1",'.$m.','.$last.');</script>';
       return 1;
     }
     $mm = minmaxSetup($m);
@@ -417,6 +406,7 @@ function test_corner_encodes()
     // corner opposite just outside
     test_encode_decode( "", ($mm->maxy)/1000000.0, ($mm->maxx)/1000000.0, 0,0 );
   }
+  echo '<script>progress("prog1",'.$last.','.$last.');</script>';
   return 0;
 }
 
@@ -440,7 +430,7 @@ function test_corner_encodes()
 
   echo '<HR>Edge encode/decode tests <font id="prog1">0</font>%<BR>';
   {
-    $i = intval($_GET["edge"])-1;
+    $i = intval($_GET["edge"]);
     if ($i>0) $GLOBALS['next_corner_to_test'] = $i;
     while (test_corner_encodes()) ;
   }

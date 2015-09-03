@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-define('mapcode_phpversion', '2.1.4');
+define('mapcode_phpversion', '2.1.5');
 
 $xdivider19 = array(
     360, 360, 360, 360, 360, 360, 361, 361, 361, 361,
@@ -1861,6 +1861,20 @@ function mapcoderEngine($enc, $tn, $getshortest, $isrecursive, $state_override, 
     }
 
     return $results;
+}
+
+function maxErrorinMeters($precision) {
+    $maxErrorForPrecision = array(
+        7.49,
+        1.45,
+        0.2502,
+        0.0462,
+        0.00837,
+        0.00154,
+        0.00028,
+        0.000052,
+        0.0000093);
+    return $maxErrorForPrecision[$precision];
 }
 
 function distanceInMeters($latDeg1, $lonDeg1, $latDeg2, $lonDeg2)

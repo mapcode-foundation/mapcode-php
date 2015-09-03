@@ -44,9 +44,17 @@ limitations under the License.
 
 # Version History
 
+* 2.1.5
+
+    Reworked high-precision to pure integer math;
+
+    Enforce encode(decode(m))=m except at territory borders;
+
+    Added maxErrorinMeters to API;
+
 * 2.1.1
 
-    Added useful routine DistanceInMeters to API
+    Added DistanceInMeters to API
 
 * 2.1.0
 
