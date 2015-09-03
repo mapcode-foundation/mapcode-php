@@ -466,15 +466,16 @@ class MapcodeZone {
     }
 
     public static function convertFractionsToCoord32($p) {
-        return new Coord( 
+        return new Coord(
             floor($p->lat /  810000.0), 
             floor($p->lon / 3240000.0));
     }
 
     public static function convertFractionsToDegrees($p) {
-        return new Coord( 
-            $p->lat / ( 810000*1000000.0),
-            $p->lon / (3240000*1000000.0));
+        $lon = $p->lon / (3240000*1000000.0);
+        $lon += (360 * floor(lon / 360.0));
+        if ($lon >= 180) { $lon -= 360; }
+        return new Coord( $p->lat / ( 810000*1000000.0), $lon);
     }
 
     public function SetFromFractions($y, $x, $yDelta, $xDelta) {
@@ -1340,14 +1341,12 @@ function master_decode($mapcode, $territoryNumber = -1) {
         if (($incodex == $codexm || ($incodex == 22 && $codexm == 21)) && recType($m) == 0 && isNameless($m) == 0) {
 
             $zone = decodeGrid($mapcode, $extensionchars, $m);
-//echo "GRID*".$zone."<BR>";
 
             // first of all, make sure the zone fits the country
             if (! $zone->isEmpty() && ($territoryNumber != ccode_earth)) {
                 $zone = $zone->RestrictZoneTo(minmaxSetup($upto));
             }    
 
-//echo "GRID*".$zone."<BR>";
             if (!$zone->isEmpty() && isRestricted($m)) {
                 $nrZoneOverlaps = 0;
                 $coord32 = MapcodeZone::convertFractionsToCoord32($zone->MidPointFractions());
@@ -1365,7 +1364,6 @@ function master_decode($mapcode, $territoryNumber = -1) {
                     for ($j = $from; $j < $m; $j++) { // try all smaller rectangles j
                       if (!isRestricted($j)) {
                         $z = $zone->RestrictZoneTo(minmaxSetup($j));
-//echo "TEST*".$z."<BR>";
                         if (!$z->isEmpty()) {
                           $nrZoneOverlaps++;
                           if ($nrZoneOverlaps == 1) {
@@ -1380,39 +1378,31 @@ function master_decode($mapcode, $territoryNumber = -1) {
                     }
                     if ($nrZoneOverlaps == 1) { // intersected exactly ONE sub-area?
                         $zone = $zfound; // use the intersection found...
-//echo "FOUND*".$z."<BR>";
                     }
                 }
 
                 if ($nrZoneOverlaps == 0) {
                     $zone = new MapcodeZone();
-//echo "NOTFOUND*".$z."<BR>";
                 }
             }
             break;
         } else if ($codexm + 10 == $incodex && recType($m) == 1 && headerLetter($m) == $mapcode[0]) {
             $zone = decodeGrid(substr($mapcode, 1), $extensionchars, $m);
-//echo "grid=".$zone."<BR>";
             break;
         } else if (isNameless($m) && (($codexm == 21 && $incodex == 22) || ($codexm == 22 && $incodex == 32) || ($codexm == 13 && $incodex == 23))) {
             $zone = decodeNameless($mapcode, $extensionchars, $m, $from);
-//echo "naml=".$zone."<BR>";
             break;
         } else if ($postfixlength == 3 && recType($m) > 1 && CodexLen($m) == $prefixlength + 2) {
             $zone = decodeAutoHeader($mapcode, $extensionchars, $m);
-//echo "auto=".$zone."<BR>";
             break;
         }
     }
-//echo "decoded0=".$zone."<BR>";
     if ($territoryNumber != ccode_earth) {
         $zone = $zone ->restrictZoneTo(minmaxSetup($upto));
     }
-//echo "decoded1=".$zone."<BR>";
     if ($zone->isEmpty()) {
         return 0;
     }
-//echo "decoded2=".$zone."<BR>";
     return MapcodeZone::convertFractionsToDegrees($zone->MidPointFractions());
 }
 
