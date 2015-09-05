@@ -1803,7 +1803,7 @@ function mapcoderEngine($enc, $tn, $getshortest, $isrecursive, $state_override, 
                         if (recType($i) > 1) {
                             $r = encodeAutoHeader($enc, $i, $extraDigits);
                         } else {
-                            if (isRestricted($i) && $i == $upto && getParentOf($territoryNumber) >= 0) {
+                            if (($i == $upto) && (getParentOf($territoryNumber) >= 0)) {
                                 $results = array_merge($results, mapcoderEngine($enc, getParentOf($territoryNumber), $getshortest, 1/*recursive*/, $territoryNumber, $extraDigits));
                                 continue;
                             } else {
