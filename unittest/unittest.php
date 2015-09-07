@@ -22,7 +22,7 @@ include '../mapcode_api.php';
 include 'test_territories.php';
 include 'test_encodes.php';
 
-echo "Mapcode Unittest version 2.1.5<BR>";
+echo "Mapcode Unittest version 2.2<BR>";
 echo "Mapcode PHP version "  . mapcode_phpversion . "<BR>";
 echo "Mapcode DATA version " . mapcode_dataversion . "<BR>";
 if ($redivar) echo "Mapcode fast_encode loaded<BR>";

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-define('mapcode_phpversion', '2.1.5');
+define('mapcode_phpversion', '2.2');
 
 $xdivider19 = array(
     360, 360, 360, 360, 360, 360, 361, 361, 361, 361,
@@ -1343,9 +1343,7 @@ function master_decode($mapcode, $territoryNumber = -1) {
             $zone = decodeGrid($mapcode, $extensionchars, $m);
 
             // first of all, make sure the zone fits the country
-            if (! $zone->isEmpty() && ($territoryNumber != ccode_earth)) {
-                $zone = $zone->RestrictZoneTo(minmaxSetup($upto));
-            }    
+            $zone = $zone->RestrictZoneTo(minmaxSetup($upto));
 
             if (!$zone->isEmpty() && isRestricted($m)) {
                 $nrZoneOverlaps = 0;
@@ -1397,9 +1395,9 @@ function master_decode($mapcode, $territoryNumber = -1) {
             break;
         }
     }
-    if ($territoryNumber != ccode_earth) {
-        $zone = $zone ->restrictZoneTo(minmaxSetup($upto));
-    }
+
+    $zone = $zone ->restrictZoneTo(minmaxSetup($upto));
+
     if ($zone->isEmpty()) {
         return 0;
     }

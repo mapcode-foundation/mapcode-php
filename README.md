@@ -44,6 +44,10 @@ limitations under the License.
 
 # Version History
 
+* 2.2
+
+    Solved 1-microdegree gap in a few spots on Earth, noticable now extreme precision is possible
+
 * 2.1.5
 
     Reworked high-precision to pure integer math;
