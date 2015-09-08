@@ -376,6 +376,56 @@ function distance_tests()
 }
 
 
+function territory_code_tests() {
+    $testdata = array(
+      // expected answer, context, string
+      "BR-AL", "BRA",    "AL",
+        -1,    -1  , "",
+        -1,    -1  , "R",
+        -1,    -1  , "RX",
+        -1,    -1  , "RXX",
+        "RUS", -1  , "RUS",
+        -1,    -1  , "RUSSIA",
+      "USA",   -1, "US",
+      "USA",   -1, "USA",
+      "USA",   -1, "usa",
+      "USA",   -1, "   usa   ",
+         -1,   -1  , "999",
+         -1,   -1  , "-44 33",
+         -1,   -1  , "666",
+      "USA",   -1, "410",
+      "USA",   -1, "  410  ",
+      "USA",   -1, "410 MORE TEXT",
+      "USA",   -1, "US CA",
+         -1,   -1  , "US-TEST",
+      "USA",   -1, "US OTHER TEXT",
+      "USA",   -1, "   US OTHER TEXT   ",
+      "US-CA", -1, "US-CA",
+      "US-CA", -1-1, "US-CA OTHER TEXT",
+      "US-CA", -1, "USA-CA",
+      "RU-TT", -1, "RUS-TAM",
+         -1,   -1  , "RUS-TAMX",
+      "RU-TT", -1, "RUS-TAM X OTHER TEXT",
+      "RU-AL", "rus",    "AL",
+      "RU-AL", "RUS",    "AL",
+      "RU-AL", "ru-tam", "AL",
+      "RU-AL", "RU-TAM", "AL",
+      "US-AL", "US",     "AL",
+      "US-AL", "US-CA",  "AL",
+    -9);
+
+  for ($i = 0; $testdata[$i] != -9; $i += 3 ) {
+      $tc = getTerritoryAlphaCode(getTerritoryNumber($testdata[$i + 2], $testdata[$i + 1]));
+      $GLOBALS['nrTests']++;
+      if ($tc != $testdata[$i]) 
+        {
+          $GLOBALS['nrErrors']++;
+          echo '*** ERROR *** getTerritoryNumber("' . $testdata[$i + 2] . '", ' . $testdata[$i + 1] . ')=' . $tc . ', expected ' . $testdata[$i] . '<BR>';
+        }
+    }
+}
+
+
 $next_corner_to_test = 0;
 function test_corner_encodes()
 {
@@ -420,6 +470,7 @@ function test_corner_encodes()
 
   echo '<HR>Territory tests<BR>';
   echo MAX_CCODE . " territories<BR>";
+  territory_code_tests();
   test_territories(); // uses test_territory()
 
   echo '<HR>Decode fail tests<BR>';
