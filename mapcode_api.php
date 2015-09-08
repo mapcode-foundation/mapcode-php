@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-define('mapcode_phpversion', '2.2');
+define('mapcode_phpversion', '2.2.1');
 
 $xdivider19 = array(
     360, 360, 360, 360, 360, 360, 361, 361, 361, 361,
@@ -143,8 +143,11 @@ function getParentOf($territory)
 
 function iso2ccode($territory)
 {
-
     $isocode = strtoupper(trim($territory));
+    $sep = strpos($isocode, ' ');
+    if ($sep !== false) {
+        $isocode = substr($isocode, 0, $sep);
+    }
     if (is_numeric($isocode)) {
         return intval($isocode);
     }
@@ -214,9 +217,10 @@ function iso2ccode($territory)
     return -1;
 }
 
-function getTerritoryNumber($territory, $contextTerritoryNumber = -1)
+function getTerritoryNumber($territory, $contextTerritory = -1)
 {
-    if ($contextTerritoryNumber >= 0) {
+    if ($contextTerritory != -1) {
+        $contextTerritoryNumber = getTerritoryNumber($contextTerritory);
         set_disambiguate($GLOBALS['entity_iso'][$contextTerritoryNumber]);
     }
     return iso2ccode($territory);
