@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright (C) 2014-2015 Stichting Mapcode Foundation (http://www.mapcode.com)
+ * Copyright (C) 2014-2020 Stichting Mapcode Foundation (http://www.mapcode.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18197,5 +18197,3 @@ $data_special1 = array(
 159,167,127,151,153,154,154,123,262,181,181,130,3,1,2542,2353,2353,2353,2353,1,
 1,1,1,390,1,256,196,167,148,134,126,119,114,110,107,105,103,102,102,102,
 102,102,103,105,107,110,114,119,126,134,148,167,196,256,1,0,-1);
-
-?>

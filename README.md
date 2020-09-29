@@ -1,6 +1,6 @@
 # Mapcode Library for PHP
 
-Copyright (C) 2014-2015 Stichting Mapcode Foundation (http://www.mapcode.com)
+Copyright (C) 2014-2020 Stichting Mapcode Foundation (http://www.mapcode.com)
 
 ----
 
@@ -9,7 +9,7 @@ and to decode mapcodes back to latitude/longitude pairs.
 
 **Online documentation can be found at: http://mapcode-foundation.github.io/mapcode-php/**
 
-# License
+## License
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-# PHP Files for Mapcode Support
+## PHP Files for Mapcode Support
 
     mapcode_data.php         - Data table for mapcode support
     mapcode_func.php         - Key routines for mapcode support
@@ -35,50 +35,55 @@ limitations under the License.
 
     unittest\unittest.php    - Unit test for mapcode library
 
-# Documentation
+## Documentation
 
     mapcode_library_php.doc  - Manual: how to use the PHP Mapcode Library
     LICENSE                  - Apache License, Version 2.0
     NOTICE                   - About this package
     README.md                - This document
 
-# Version History
+## Version History
 
-* 2.2
+### 2.2.2
 
-    Solved 1-microdegree gap in a few spots on Earth, noticable now extreme precision is possible
+* Fixed PHP errors for new version of PHP.
 
-* 2.1.5
+* Cleaned up/reformatted source code.
 
-    Reworked high-precision to pure integer math;
+### 2.2.0 - 2.2.1
 
-    Enforce encode(decode(m))=m except at territory borders;
+* Solved 1-microdegree gap in a few spots on Earth, noticable now extreme precision is possible.
 
-    Added maxErrorinMeters to API;
+### 2.1.5
 
-* 2.1.1
+* Reworked high-precision to pure integer math.
 
-    Added DistanceInMeters to API
+* Enforce encode(decode(m))=m except at territory borders.
+* Added maxErrorinMeters to API.
 
-* 2.1.0
+### 2.1.1
 
-    Rewrote fraction floating points to integer arithmetic;
+* Added DistanceInMeters to API.
 
-    Several fixes; extended unit tests;
+### 2.1.0
 
-* 2.0.3
+* Rewrote fraction floating points to integer arithmetic.
 
-    Added unittest.php, which verifies that the library works as expected;
+* Several fixes; extended unit tests.
 
-* 2.0.2
+### 2.0.3
 
-    Ported fast_encode from C library (4x faster global encoding);
+* Added unittest.php, which verifies that the library works as expected.
 
-    Minor improvements (stricter tests);
+### 2.0.2
 
-* 2.0.0
+* Ported fast_encode from C library (4x faster global encoding).
 
-    Initial open source release. (The release starts at 2.0.0 because the
-    mapcode algorithms match the 2.0.x releases in Java, C/C++, and other
-    languages.)
+* Minor improvements (stricter tests).
+
+### 2.0.0
+
+* Initial open source release. (The release starts at 2.0.0 because the
+mapcode algorithms match the 2.0.x releases in Java, C/C++, and other
+languages.)
 
