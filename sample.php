@@ -34,7 +34,11 @@
 
     echo '<H1>Mapcode PHP version ' . mapcode_phpversion . ' example</H1>';
 
-    $input = trim($_REQUEST["s"]);
+    if (array_key_exists('s', $_REQUEST)) {
+        $input = trim($_REQUEST["s"]);
+    } else {
+        $input = NULL;
+    }
     if ($input != NULL) {
         //$input = utf8_decode(mb_convert_encoding($input,"utf-8" ));
         if (strpos($input, ',') !== false) // contains a comma, so assume coordinates
@@ -60,7 +64,7 @@
                 echo ' (romanized as ' . $asc . ')';
             }
             $d = decode($input);
-            if ($d == 0) {
+            if (!$d) {
                 echo '<BR>is not a valid mapcode<BR>';
                 if (strpos($input, ' ') === false) {
                     echo '(did you include the territory?)<BR>';
