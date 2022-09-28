@@ -44,6 +44,10 @@ limitations under the License.
 
 ## Version History
 
+### 2.2.3
+
+* Updated to support PHP version 8.1.4 (thanks, Bert Hooyman).
+
 ### 2.2.2
 
 * Fixed PHP errors for new version of PHP.
