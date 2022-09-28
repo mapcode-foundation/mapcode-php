@@ -1783,7 +1783,7 @@ function mapcoderEngine($enc, $tn, $getshortest, $isrecursive, $state_override, 
     if (is_numeric($tn) && $tn >= 0 && $tn <= $uptoRun) {
         $fromRun = $tn;
         $uptoRun = $tn;
-    } else if ($GLOBALS['redivar']) {
+    } else if (array_key_exists('redivar', $GLOBALS)) {
         $use_redivar = 1;
         $HOR = 1;
         $i = 0; // pointer into redivar
