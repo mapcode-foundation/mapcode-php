@@ -639,7 +639,7 @@ function decodeTriple($input)
     $c1 = decodeChar($input);
     $x = decodeBase31(substr($input, 1));
     if ($x < 0) {
-        return 0;
+        return null;
     }
     if ($c1 < 24) {
         return new Coord((int)($c1 / 6) * 34 + (int)($x % 34), ($c1 % 6) * 28 + (int)($x / 34));
@@ -781,7 +781,7 @@ function decodeGrid($input, $extensionchars, $m)
 
     if ($postfixlength == 3) {
         $d = decodeTriple($rest);
-        if ($d == 0) {
+        if (!$d) {
             return new MapcodeZone();
         }
         $difx = $d->lon;
@@ -961,7 +961,7 @@ function decodeAutoHeader($input, $extensionchars, $m)
     }
     $value *= (961 * 31);
     $triple = decodeTriple(substr($input, strlen($input) - 3));
-    if ($triple == 0) {
+    if (!$triple) {
         return new MapcodeZone();
     }
     for (; Codex($m) == $codexm; $m++) {
@@ -1239,7 +1239,7 @@ function to_ascii($str)
     }
     $p = strrpos($result, ' ');
     if ($p === false) $p = 0; else $p++;
-    if ($result[$p] == 'A') {
+    if ((strlen($result)) && ($result[$p] == 'A')) {
         $result = substr($result, 0, $p) . aeu_pack(aeu_unpack(substr($result, $p)));
     }
     return $result;
@@ -1454,7 +1454,7 @@ function decode($mapcodeString, $territory = -1)
     } else {
         return master_decode($mapcodeString, $contextTerritoryNumber);
     }
-    return 0;
+    return null;
 }
 
 function encodeSixWide($x, $y, $width, $height)

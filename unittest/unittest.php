@@ -40,8 +40,8 @@ include '../mapcode_api.php';
 include 'test_territories.php';
 include 'test_encodes.php';
 
-ini_set('max_execution_time', 300);
-set_time_limit(300);
+ini_set('max_execution_time', 1200);
+set_time_limit(1200);
 
 echo "Mapcode Unittest version 2.2<BR>";
 echo "Mapcode PHP version " . mapcode_phpversion . "<BR>";
@@ -167,7 +167,7 @@ function test_encode_decode($str, $y, $x, $localsolutions, $globalsolutions)
             $str = $r[$i];
             // check if every solution decodes
             $p = decode($str);
-            if ($p == 0) {
+            if (!$p) {
                 $GLOBALS['nrErrors']++;
                 echo '*** ERROR *** decode(' . $str . ') = no result. expected ~(' . number_format($y, 14) . ' . ' . number_format($x, 14) . ')<BR>';
             } else {
@@ -340,7 +340,12 @@ function test_encodes()
     while ($t[$n * 5] !== false) $n++;
 
     // executed (optionally, from "start" parameter)
-    $i = intval($_GET["start"]) - 1;
+    if (array_key_exists("start", $_GET)) {
+        $i = intval($_GET["start"]) - 1;
+    } else {
+        $i = 0;
+    }
+    
     if ($i < 0) $i = 0;
     $nextlevel = $i;
     while ($i <= $n) {
@@ -419,7 +424,7 @@ function territory_code_tests()
         "USA", -1, "US OTHER TEXT",
         "USA", -1, "   US OTHER TEXT   ",
         "US-CA", -1, "US-CA",
-        "US-CA", -1 - 1, "US-CA OTHER TEXT",
+        "US-CA", -1, "US-CA OTHER TEXT",
         "US-CA", -1, "USA-CA",
         "RU-TT", -1, "RUS-TAM",
         -1, -1, "RUS-TAMX",
@@ -498,7 +503,11 @@ test_encodes(); // uses test_encode_decode()
 
 echo '<HR>Edge encode/decode tests <font id="prog1">0</font>%<BR>';
 {
-    $i = intval($_GET["edge"]);
+    if (array_key_exists("edge", $_GET)) {
+        $i = intval($_GET["edge"]);
+    } else {
+        $i = 0;
+    }
     if ($i > 0) $GLOBALS['next_corner_to_test'] = $i;
     while (test_corner_encodes()) ;
 }
