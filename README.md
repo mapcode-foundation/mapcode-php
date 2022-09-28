@@ -1,6 +1,6 @@
 # Mapcode Library for PHP
 
-Copyright (C) 2014-2020 Stichting Mapcode Foundation (http://www.mapcode.com)
+Copyright (C) 2014-2022 Stichting Mapcode Foundation (http://www.mapcode.com)
 
 ----
 
