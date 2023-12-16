@@ -28,9 +28,12 @@
 
     <?php
     // ----------------------- start of PHP ---------------------
-    include 'mapcode_data.php';
-    include 'mapcode_api.php';
-    include 'mapcode_countrynames.php'; // so we can show full country names (in english)
+    require_once 'src/mapcode.php';
+
+    use function Mapcode\convertToAlphabet;
+    use function Mapcode\decode;
+    use function Mapcode\encodeShortestWithPrecision;
+    use function Mapcode\getTerritoryFullname;
 
     echo '<H1>Mapcode PHP version ' . mapcode_phpversion . ' example</H1>';
 

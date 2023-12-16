@@ -1,5 +1,6 @@
 <?php
 
+namespace Mapcode {
 /*
  * Copyright (C) 2014-2020 Stichting Mapcode Foundation (http://www.mapcode.com)
  *
@@ -18,10 +19,34 @@
 
 // *** GENERATED FILE, DO NOT CHANGE OR PRETTIFY ***
 
+class MapcodeData
+{
+  public static array $entity_iso = [];
+  public static string $aliases = "";
+  public static array $dependency = [];
+  public static array $decode_chars = [];
+  public static array $data_start = [];
+  public static array $data_flags = [];
+  public static array $data_mm = [];
+  public static array $data_special1 = [];
+  public static array $xdivider19 = [];
+  public static array $nc = [];
+  public static array $xside = [];
+  public static array $yside = [];
+  public static string $encode_chars;
+  public static int $disambiguate = 1;
+  public static array $lannam = [];
+  public static array $lanlannam = [];
+  public static array $asc2lan = [];
+  public static int $debugStopRecord = -1;
+  public static array $isofullname = [];
+  public static array $redivar = [];
+}
+
 define('mapcode_dataversion', '2.2');
 define('MAX_CCODE', 533);
 
-$entity_iso = array(
+MapcodeData::$entity_iso = array(
   'VAT','MCO','GIB','TKL','CCK','BLM','NRU','TUV','MAC','SXM',
   'MAF','NFK','PCN','BVT','BMU','IOT','SMR','GGY','AIA','MSR',
   'JEY','CXR','WLF','VGB','LIE','ABW','MHL','ASM','COK','SPM',
@@ -77,9 +102,9 @@ $entity_iso = array(
   '8HN','8GX','8SC','8YN','8XZ','8GS','8QH','8XJ','CHN','UMI',
   'CPT','ATA','AAA', '?');
 
-$aliases = "2UK=2UT,2CG=2CT,1GU=GUM,1UM=UMI,1VI=VIR,1AS=ASM,1MP=MNP,4CX=CXR,4CC=CCK,4NF=NFK,4HM=HMD,COL=5CL,5ME=5MX,MEX=5MX,5AG=AGU,5BC=BCN,5BS=BCS,5CM=CAM,5CS=CHP,5CH=CHH,5CO=COA,5DF=DIF,5DG=DUR,5GT=GUA,5GR=GRO,5HG=HID,5JA=JAL,5MI=MIC,5MO=MOR,5NA=NAY,5NL=NLE,5OA=OAX,5PB=PUE,5QE=QUE,5QR=ROO,5SL=SLP,5SI=SIN,5SO=SON,5TB=TAB,5TL=TLA,5VE=VER,5YU=YUC,5ZA=ZAC,811=8BJ,812=8TJ,813=8HE,814=8SX,815=8NM,821=8LN,822=8JL,823=8HL,831=8SH,832=8JS,833=8ZJ,834=8AH,835=8FJ,836=8JX,837=8SD,841=8HA,842=8HB,843=8HN,844=8GD,845=8GX,846=8HI,850=8CQ,851=8SC,852=8GZ,853=8YN,854=8XZ,861=8SN,862=8GS,863=8QH,864=8NX,865=8XJ,871=TWN,891=HKG,892=MAC,8TW=TWN,8HK=HKG,8MC=MAC,BEL=7BE,KIR=7KI,PRI=7PO,CHE=7CH,KHM=7KM,PER=7PM,TAM=7TT,0US=USA,0AU=AUS,0RU=RUS,0CN=CHN,TAA=SHN,ASC=SHN,DGA=IOT,WAK=MHL,JTN=UMI,MID=1HI,1PR=PRI,5TM=TAM,TAM=TAM,2OD=2OR,";
+MapcodeData::$aliases = "2UK=2UT,2CG=2CT,1GU=GUM,1UM=UMI,1VI=VIR,1AS=ASM,1MP=MNP,4CX=CXR,4CC=CCK,4NF=NFK,4HM=HMD,COL=5CL,5ME=5MX,MEX=5MX,5AG=AGU,5BC=BCN,5BS=BCS,5CM=CAM,5CS=CHP,5CH=CHH,5CO=COA,5DF=DIF,5DG=DUR,5GT=GUA,5GR=GRO,5HG=HID,5JA=JAL,5MI=MIC,5MO=MOR,5NA=NAY,5NL=NLE,5OA=OAX,5PB=PUE,5QE=QUE,5QR=ROO,5SL=SLP,5SI=SIN,5SO=SON,5TB=TAB,5TL=TLA,5VE=VER,5YU=YUC,5ZA=ZAC,811=8BJ,812=8TJ,813=8HE,814=8SX,815=8NM,821=8LN,822=8JL,823=8HL,831=8SH,832=8JS,833=8ZJ,834=8AH,835=8FJ,836=8JX,837=8SD,841=8HA,842=8HB,843=8HN,844=8GD,845=8GX,846=8HI,850=8CQ,851=8SC,852=8GZ,853=8YN,854=8XZ,861=8SN,862=8GS,863=8QH,864=8NX,865=8XJ,871=TWN,891=HKG,892=MAC,8TW=TWN,8HK=HKG,8MC=MAC,BEL=7BE,KIR=7KI,PRI=7PO,CHE=7CH,KHM=7KM,PER=7PM,TAM=7TT,0US=USA,0AU=AUS,0RU=RUS,0CN=CHN,TAA=SHN,ASC=SHN,DGA=IOT,WAK=MHL,JTN=UMI,MID=1HI,1PR=PRI,5TM=TAM,TAM=TAM,2OD=2OR,";
 
-$dependency = array(
+MapcodeData::$dependency = array(
  27, 410, 50, 410, 26, 410, 53, 410, 48, 410, 47, 410, 76, 410, 529, 410, 38, 410,
     21, 408, 4, 408, 42, 408, 11, 408,
     18, 166, 14, 166, 15, 166, 23, 166, 32, 166, 82, 166, 2, 166, 17, 166, 51, 166, 20, 166, 19, 166, 12, 166, 35, 166, 70, 166, 59, 166,
@@ -93,7 +118,7 @@ $dependency = array(
     77, 210,
     -1);
 
-$decode_chars = array(
+MapcodeData::$decode_chars = array(
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -141,7 +166,7 @@ define('ccode_earth', 532);
 define('parents3', 'USA,IND,CAN,AUS,MEX,BRA,RUS,CHN,');
 define('parents2', 'US,IN,CA,AU,MX,BR,RU,CN,');
 
-$data_start = array(
+MapcodeData::$data_start = array(
   0, 3, 6, 10, 14, 17, 19, 20, 31, 32,
   34, 36, 38, 43, 45, 48, 52, 59, 63, 65,
   67, 71, 73, 81, 87, 95, 97, 132, 139, 149,
@@ -197,7 +222,7 @@ $data_start = array(
   16104, 16124, 16145, 16163, 16181, 16200, 16216, 16232, 16287, 16313,
   16320, 16322, 16324,16356);
 
-$data_flags = array(
+MapcodeData::$data_flags = array(
 
 11,534,540,11,534,540,11,34956,12945,540,10,75,75,17,1098,1098,12,11,12,11,
 10,267,267,267,267,267,267,267,267,267,22,11,10,12,10,12,10,12,74,74,
@@ -1018,7 +1043,7 @@ $data_flags = array(
 11,12,11,23,151,2199,4247,6295,8343,10391,12439,14487,16535,18583,20631,22679,24727,26775,28823,30871,
 32919,34967,37015,39063,41111,43159,45207,47255,49303,51351,53399,55447,57495,59543,61591,29,-1);
 
-$data_mm = array(
+MapcodeData::$data_mm = array(
 12433114,12548434,41851944,41938434,
 5850000,18560000,35450000,55080000,
 12444000,12460000,41899000,41908000,
@@ -17377,7 +17402,7 @@ $data_mm = array(
 -180000000,180000000,-90000000,90000001,
 -1);
 
-$data_special1 = array(
+MapcodeData::$data_special1 = array(
 
 1,1290,3,1,1,3,1,1,166,3,1,3844,3721,167,679,679,1,1,1,1,
 41,4,4,4,4,4,4,4,4,4,1,39,1,1,1,1,1,1,554,554,
@@ -18197,3 +18222,4 @@ $data_special1 = array(
 159,167,127,151,153,154,154,123,262,181,181,130,3,1,2542,2353,2353,2353,2353,1,
 1,1,1,390,1,256,196,167,148,134,126,119,114,110,107,105,103,102,102,102,
 102,102,103,105,107,110,114,119,126,134,148,167,196,256,1,0,-1);
+}
