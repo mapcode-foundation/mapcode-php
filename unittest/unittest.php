@@ -33,12 +33,22 @@
 
 $redivar = array();
 
-include '../mapcode_data.php'; // data
-include '../mapcode_fast_encode.php';
-include '../mapcode_api.php';
+require_once '../src/mapcode.php';
+require_once '../src/mapcode_fast_encode.php';
+require_once 'test_territories.php';
+require_once 'test_encodes.php';
 
-include 'test_territories.php';
-include 'test_encodes.php';
+use function Mapcode\convertToAlphabet;
+use function Mapcode\encodeWithPrecision;
+use function Mapcode\decode;
+use function Mapcode\distanceInMeters;
+use function Mapcode\maxErrorinMeters;
+use function Mapcode\getParentOf;
+use function Mapcode\multipleBordersNearby;
+use function Mapcode\getTerritoryNumber;
+use function Mapcode\getTerritoryAlphaCode;
+use function Mapcode\dataLastRecord;
+use function Mapcode\minmaxSetup;
 
 ini_set('max_execution_time', 1200);
 set_time_limit(1200);

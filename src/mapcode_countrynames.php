@@ -1,5 +1,6 @@
 <?php
 
+namespace Mapcode {
 /*
  * Copyright (C) 2014-2020 Stichting Mapcode Foundation (http://www.mapcode.com)
  *
@@ -19,7 +20,7 @@
 // *** GENERATED FILE, DO NOT CHANGE OR PRETTIFY ***
 
 
-$isofullname = array(
+MapcodeData::$isofullname = array(
     'Vatican City State (Holy See)',
     'Monaco',
     'Gibraltar',
@@ -554,3 +555,4 @@ $isofullname = array(
     'Antarctica',
     'International (Worldwide) (Earth)',
     "?");
+}

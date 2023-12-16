@@ -1,5 +1,6 @@
 <?php
 
+namespace Mapcode {
 /*
  * Copyright (C) 2014-2020 Stichting Mapcode Foundation (http://www.mapcode.com)
  *
@@ -16,7 +17,7 @@
  * limitations under the License.
  */
 
-$redivar = array(
+MapcodeData::$redivar = array(
     27984500, 1383,
     2537718, 676,
     12842450, 332,
@@ -715,3 +716,4 @@ $redivar = array(
     7, 468, 469, 476, 478, 485, 494, 496,
     8, 393, 410, 486, 487, 488, 492, 494, 496,
     0);
+}

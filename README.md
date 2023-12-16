@@ -37,12 +37,47 @@ limitations under the License.
 
 ## Documentation
 
-    mapcode_library_php.doc  - Manual: how to use the PHP Mapcode Library
+    mapcode_library_php.doc  - Manual: how to use the PHP Mapcode Library (deprecated)
     LICENSE                  - Apache License, Version 2.0
     NOTICE                   - About this package
     README.md                - This document
 
+## Example
+
+This is an example of how to use this library as of version 2.3.0 via composer.
+
+### Installing via Composer
+
+```bash
+$ composer require mapcodes/mapcodes
+```
+
+### Usage
+
+```php
+
+use Mapcode\Coord;
+
+use function Mapcode\encodeInternational as mapcodeEncodeInternational;
+use function Mapcode\decode as mapcodeDecode;
+
+$arrayWithResult = mapcodeEncodeInternational(42.5077402, -83.1954047); // T8BBD.YLN0
+
+$decoded = mapcodeDecode("T8BBD.YLN0"); // Returns `Mapcode\Coord` on successful decode
+
+if($decoded instanceof Coord)
+{
+    echo "{$decoded->lat}, {$decoded->lon}\n";
+}
+
+```
+
 ## Version History
+
+### 2.3.0
+
+* Updated to move everything into the `Mapcode` namespace, remove dependencies on global variables
+* Added support for composer via composer.json
 
 ### 2.2.3
 
