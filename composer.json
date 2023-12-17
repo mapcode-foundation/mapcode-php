@@ -1,0 +1,30 @@
+{
+    "name": "mapcodes/mapcodes",
+    "description": "The mapcodes SDK (https://www.mapcode.com/)",
+    "type": "library",
+    "version" : "2.3.0",
+    "require": {
+    },
+    "license": "Apache-2.0",
+    "autoload": {
+        "files" : [
+            "src/mapcode.php"
+        ]
+    },
+    "prefer-stable": true,
+    "config": {
+        "sort-packages": true,
+        "preferred-install": "dist",
+        "allow-plugins": {}
+    },
+    "authors": [
+        {
+            "name": "Stichting Mapcode Foundation",
+            "homepage" : "https://mapcode.com"
+        },
+        {
+            "name": "John Coggeshall",
+            "email": "john@arvee.io"
+        }
+    ]
+}
